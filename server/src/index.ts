@@ -39,6 +39,39 @@ async function main() {
     res.json({ ok: true, ts: Date.now() });
   });
 
+  // Diagnostic endpoint — uptime, current room counts, env summary.
+  // Lets us curl-test what the server is actually doing without WS access.
+  const BOOT_TS = Date.now();
+  app.get("/api/diag", async (_req, res) => {
+    try {
+      const { matchMaker } = await import("@colyseus/core");
+      const lobbyRooms = await matchMaker.query({ name: "lobby" });
+      const raceRooms  = await matchMaker.query({ name: "race" });
+      res.json({
+        ok: true,
+        uptimeMs: Date.now() - BOOT_TS,
+        node: process.version,
+        env: {
+          NODE_ENV: process.env.NODE_ENV ?? null,
+          PORT: process.env.PORT ?? null,
+          SOLANA_CLUSTER: process.env.SOLANA_CLUSTER ?? null,
+          ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? null,
+          CLIENT_BUNDLED_TRACKS: process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse",
+        },
+        rooms: {
+          lobby: lobbyRooms.map((r) => ({ roomId: r.roomId, clients: r.clients, metadata: r.metadata })),
+          race:  raceRooms.map((r)  => ({ roomId: r.roomId, clients: r.clients, metadata: r.metadata })),
+        },
+        catalog: {
+          karts:  loadKartCatalog().length,
+          tracks: loadTrackCatalog().length,
+        },
+      });
+    } catch (err) {
+      res.status(500).json({ ok: false, error: String(err) });
+    }
+  });
+
   // Public: where to send entry-fee transfers. The web host queries this
   // and builds a SystemProgram.transfer + memo for the player to sign.
   app.get("/api/escrow-address", (_req, res) => {
