@@ -104,7 +104,7 @@ func set_spawn_at_world_position(world_pos: Vector3) -> void:
 	NetworkClient.set_spawn(world_pos.x, world_pos.y, world_pos.z)
 	print("[race] spawn point set + broadcast: ", world_pos)
 	# Re-place every kart on the racing grid centered on the new spawn.
-	var ids := karts_by_id.keys()
+	var ids: Array = karts_by_id.keys()
 	ids.sort()
 	for i in ids.size():
 		var pid = ids[i]
@@ -203,13 +203,13 @@ func _on_race_state(state: Dictionary) -> void:
 	# Spawn anchor in world coords. With a broadcast override (player set it
 	# from the ground), use it as-is. Without, fall back to track defaults
 	# which assume a small Y lift.
-	var anchor: Vector3 = (
-		_spawn_override_world if has_override
-		else TrackLoader.spawn_offset(_loaded_track_id) if _loaded_track_id != ""
-		else Vector3.ZERO
-	)
+	var anchor: Vector3 = Vector3.ZERO
+	if has_override:
+		anchor = _spawn_override_world
+	elif _loaded_track_id != "":
+		anchor = TrackLoader.spawn_offset(_loaded_track_id)
 	# Sort karts by playerId so every client builds the same grid order.
-	var ids := karts.keys()
+	var ids: Array = karts.keys()
 	ids.sort()
 	for i in ids.size():
 		var pid_var = ids[i]
