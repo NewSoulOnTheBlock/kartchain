@@ -142,14 +142,12 @@ func send_ready() -> void:
 
 func send_input(throttle: float, brake: float, steer: float, items: int) -> void:
 	_input_seq += 1
-	if _js_bridge:
-		_js_bridge.sendInput({
-			"seq": _input_seq,
-			"throttle": throttle,
-			"brake": brake,
-			"steer": steer,
-			"items": items,
-		})
+	if _js_bridge == null:
+		return
+	# IMPORTANT: dict-passing across GDScript → JavaScriptBridge is unreliable
+	# (often arrives as {} on the JS side). Use the plain-arg variant the
+	# bridge exposes via sendInputArgs(seq, throttle, brake, steer, items).
+	_js_bridge.sendInputArgs(_input_seq, throttle, brake, steer, items)
 
 func use_item(slot: int) -> void:
 	if _js_bridge:

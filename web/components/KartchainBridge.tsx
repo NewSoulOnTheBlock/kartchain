@@ -83,6 +83,7 @@ type KartchainApi = {
     joinRaceWithKart: (raceId: string, kartType: number, maxPlayers?: number) => Promise<void>;
     leaveRoom: () => Promise<void>;
     sendInput: (i: { seq: number; throttle: number; brake: number; steer: number; items: number }) => void;
+    sendInputArgs: (seq: number, throttle: number, brake: number, steer: number, items: number) => void;
     sendReady: () => void;
     useItem: (slot: number) => void;
     setSpawn: (x: number, y: number, z: number) => void;
@@ -496,6 +497,11 @@ function makeApi(deps: {
       },
 
       sendInput(input) { raceRef.current?.send("input", input); },
+      /** Plain-arg variant called by Godot — dicts from GDScript arrive as
+       *  {} on the JS side, so the bridge passes each field separately. */
+      sendInputArgs(seq: number, throttle: number, brake: number, steer: number, items: number) {
+        raceRef.current?.send("input", { seq, throttle, brake, steer, items });
+      },
       sendReady()      { raceRef.current?.send("ready", {}); },
       useItem(slot)    { raceRef.current?.send("useItem", { slot }); },
       /** Broadcast a spawn-point override to every player in the room. */

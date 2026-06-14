@@ -309,6 +309,10 @@ func _spawn_kart(pid: String, k_data: Dictionary) -> VehicleBody3D:
 		# (LobbyRoom's countdown begins as soon as every player in the room
 		# is ready.) Multi-player races still wait for everyone.
 		_send_ready_once()
+	else:
+		# Seed the remote kart's interp target to its spawn point so it
+		# doesn't lerp toward Vector3.ZERO before the first state tick.
+		node.set_net_target(node.global_position, 0.0)
 	var stats := _stats_for_kart(int(k_data.get("kartType", 0)))
 	node.apply_stats(stats["top_speed"], stats["accel"], stats["handling"])
 	var model_path := KartCatalog.kart_model_path(int(k_data.get("kartType", 0)))

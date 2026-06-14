@@ -65,13 +65,17 @@ export class RaceRoom extends Room<RaceState> {
 
       this.onMessage("input", (client, payload: { seq: number; throttle: number; brake: number; steer: number; items?: number }) => {
         try {
+          // Log first input per client so we can confirm the bridge is alive.
+          if (!this._lastSeq.has(client.sessionId)) {
+            console.log(`[race:${this.raceId}] FIRST input from ${client.sessionId} throttle=${payload.throttle} steer=${payload.steer}`);
+          }
           const last = this._lastSeq.get(client.sessionId) ?? -1;
           if (payload.seq <= last) return; // drop stale
           this._lastSeq.set(client.sessionId, payload.seq);
           this._inputs.set(client.sessionId, {
-            throttle: clamp(payload.throttle, -1, 1),
-            brake: clamp(payload.brake, 0, 1),
-            steer: clamp(payload.steer, -1, 1),
+            throttle: clamp(Number(payload.throttle) || 0, -1, 1),
+            brake: clamp(Number(payload.brake) || 0, 0, 1),
+            steer: clamp(Number(payload.steer) || 0, -1, 1),
             useItem: !!payload.items,
           });
         } catch (err) {
