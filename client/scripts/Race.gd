@@ -10,10 +10,13 @@ const KART_SCENE := preload("res://scenes/Kart.tscn")
 @onready var lap_label: Label = $HUD/Margin/VBox/Lap
 @onready var pos_label: Label = $HUD/Margin/VBox/Position
 @onready var countdown_label: Label = $HUD/CountdownLabel
+@onready var status_overlay: Label = $HUD/StatusOverlay
 
 var local_kart: VehicleBody3D = null
 var karts_by_id: Dictionary = {}  # player_id -> Kart
 var local_player_id: String = ""
+var _race_state_received: bool = false
+var _status_t: float = 0.0
 
 var _track_node: Node3D = null
 var _loaded_track_id: String = ""
@@ -32,10 +35,13 @@ func _ready() -> void:
 	NetworkClient.race_lap.connect(_on_lap)
 	NetworkClient.race_finish.connect(_on_finish)
 	NetworkClient.race_settled.connect(_on_settled)
+	NetworkClient.net_error.connect(_on_net_error)
 
 	# local_player_id is set by race:self (Colyseus sessionId), NOT the wallet pubkey.
 	local_player_id = ""
 	countdown_label.text = ""
+	status_overlay.text = "CONNECTING TO RACE…"
+	status_overlay.visible = true
 	hud.show()
 
 	_apply_camera_mode()
@@ -43,6 +49,10 @@ func _ready() -> void:
 	if camera and "race_ref" in camera:
 		camera.race_ref = self
 	_show_debug_hint()
+
+func _on_net_error(code: String, message: String) -> void:
+	status_overlay.text = "RACE ERROR: %s\n%s\n\nPress ESC to leave" % [code, message]
+	status_overlay.visible = true
 
 func _on_race_self(session_id: String) -> void:
 	local_player_id = session_id
@@ -57,10 +67,12 @@ func _on_race_self(session_id: String) -> void:
 func _show_debug_hint() -> void:
 	var hint := Label.new()
 	hint.name = "DebugHint"
-	hint.text = "FREE-CAM ON (press F1 to follow kart)\nRMB capture mouse  WASD move  Space up  Ctrl down  Shift boost\nT = teleport to kart    Y = set kart spawn    R = recover kart"
+	# Initial text matches current camera mode; _apply_camera_mode updates after.
+	hint.text = ""
 	hint.add_theme_font_size_override("font_size", 14)
 	hint.position = Vector2(20, 100)
 	hud.add_child(hint)
+	_apply_camera_mode()
 
 # Build the localStorage key for the currently loaded track's spawn override.
 func _spawn_storage_key() -> String:
@@ -141,6 +153,16 @@ func _snap_camera_behind_kart() -> void:
 	camera.look_at(local_kart.global_position + up * 0.5, Vector3.UP)
 
 func _process(_delta: float) -> void:
+	# Tick the connecting-status animation + auto-hide once the local kart spawns
+	if status_overlay.visible:
+		_status_t += _delta
+		var dots := int(_status_t * 2.0) % 4
+		if not _race_state_received:
+			status_overlay.text = "CONNECTING TO RACE" + ".".repeat(dots)
+		elif local_kart == null:
+			status_overlay.text = "JOINING LOBBY" + ".".repeat(dots)
+		else:
+			status_overlay.visible = false
 	if camera and camera.has_method("enable"):
 		camera.local_kart_ref = local_kart
 	# Kart-follow chase cam — sits 6 units behind, 3 above, looking at the kart.
@@ -152,6 +174,9 @@ func _process(_delta: float) -> void:
 		camera.look_at(local_kart.global_position + Vector3(0, 0.8, 0), Vector3.UP)
 
 func _on_race_state(state: Dictionary) -> void:
+	_race_state_received = true
+	if status_overlay and status_overlay.visible and local_kart != null:
+		status_overlay.visible = false
 	var track_id := String(state.get("trackId", ""))
 	if track_id != "" and track_id != _loaded_track_id:
 		var ok := _load_track(track_id)
