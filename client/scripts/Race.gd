@@ -30,10 +30,11 @@ var _loaded_track_id: String = ""
 var _free_cam_enabled: bool = false  # kart-follow by default; F1 toggles free-cam
 
 # Death-floor — if the local kart's Y drops below this it gets auto-recovered.
-# Sized "triple-deep" relative to the natural placeholder ground (~y=0) so
-# normal jumps and dips don't trigger it, but a free-fall off the edge of
-# the track does.
-const DEATH_FLOOR_Y: float = -30.0
+# Placeholder ground sits at y=-15 (~50 ft below origin) so karts land on the
+# REAL track collision first. The death-floor sits well below that so a
+# free-fall off the edge of the track still recovers without the placeholder
+# silently catching you mid-air.
+const DEATH_FLOOR_Y: float = -80.0
 
 # Override of TrackLoader.spawn_offset, captured at runtime via FreeCam Y key.
 # Persisted in browser localStorage so it survives reloads.
