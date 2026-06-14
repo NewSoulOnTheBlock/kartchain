@@ -19,7 +19,7 @@ var _track_node: Node3D = null
 var _loaded_track_id: String = ""
 
 # Camera modes
-var _free_cam_enabled: bool = true   # default ON so we can debug
+var _free_cam_enabled: bool = false  # kart-follow by default; F1 toggles free-cam
 
 # Override of TrackLoader.spawn_offset, captured at runtime via FreeCam Y key.
 # Persisted in browser localStorage so it survives reloads.
@@ -154,9 +154,12 @@ func _process(_delta: float) -> void:
 func _on_race_state(state: Dictionary) -> void:
 	var track_id := String(state.get("trackId", ""))
 	if track_id != "" and track_id != _loaded_track_id:
-		_load_track(track_id)
-		_loaded_track_id = track_id
-		_load_persisted_spawn()
+		var ok := _load_track(track_id)
+		# Only remember the id if the track actually loaded — otherwise we
+		# want to retry on the next state tick (e.g. resource loaded late).
+		if ok:
+			_loaded_track_id = track_id
+			_load_persisted_spawn()
 
 	if not state.has("karts"):
 		return
@@ -230,11 +233,12 @@ func _spawn_kart(pid: String, k_data: Dictionary) -> VehicleBody3D:
 	return node
 
 # Load and add the STK track scene. Hides the placeholder ground/sky on success.
-func _load_track(track_id: String) -> void:
+# Returns true on success so the caller can retry on failure.
+func _load_track(track_id: String) -> bool:
 	var node: Node3D = TrackLoader.load_track(track_id)
 	if node == null:
-		print("[race] track %s not loaded — using placeholder" % track_id)
-		return
+		print("[race] track %s not loaded — keeping placeholder ground visible" % track_id)
+		return false
 	if _track_node and is_instance_valid(_track_node):
 		_track_node.queue_free()
 	_track_node = node
@@ -250,6 +254,7 @@ func _load_track(track_id: String) -> void:
 	# (server places them at y=0.5 in flat-world coords; track meshes are
 	# centered around y=0 in the GLB so this is usually safe).
 	print("[race] track loaded:", track_id)
+	return true
 
 func _stats_for_kart(kart_type: int) -> Dictionary:
 	# kart_type 0 = starter; > 0 = NFT lookup (TODO: pull from GameState.owned_karts)

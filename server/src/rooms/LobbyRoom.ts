@@ -2,6 +2,21 @@ import { Room, Client, matchMaker } from "@colyseus/core";
 import { Schema, ArraySchema, type } from "@colyseus/schema";
 import { pickRaceTracks, type TrackEntry } from "../content/catalog.js";
 
+/**
+ * Tracks that ship inside the Godot web build's index.pck. Lobbies for any
+ * other track id will fail to load on the client and the user just sees an
+ * empty world. Keep this in sync with client/export_presets.cfg.
+ *
+ * Override at runtime via the CLIENT_BUNDLED_TRACKS env var
+ * (comma-separated list of track ids).
+ */
+const BUNDLED_TRACK_IDS: Set<string> = new Set(
+  (process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)
+);
+
 class LobbyEntry extends Schema {
   @type("string") id = "";
   @type("string") trackId = "default";
@@ -65,50 +80,49 @@ export class LobbyRoom extends Room<LobbyState> {
    * placeholder track ids so the lobby still appears.
    */
   private _seedDefaultLobbies() {
-    const all = pickRaceTracks();
+    // Only lobbies whose track is actually bundled in the client pck —
+    // otherwise the race scene loads with no track visible.
+    const all = pickRaceTracks().filter((t) => BUNDLED_TRACK_IDS.has(t.id));
 
-    // Featured rotation: pick 3 random race tracks based on the date
-    const featured = pickDeterministic(all, 3, daySeed());
-
-    // Hand-picked tracks for paid wagers (fallback to first available)
-    const lighthouse = all.find((t) => t.id === "lighthouse") ?? all[0];
-    const cocoa      = all.find((t) => t.id === "cocoa_temple") ?? all[1] ?? lighthouse;
-    const volcano    = all.find((t) => t.id === "volcano_island") ?? all[2] ?? lighthouse;
-
-    // Free practice — multiple lobbies, one per featured track
-    if (featured.length > 0) {
-      for (const t of featured) {
-        this._addLobby({
-          id: `free-${t.id}`,
-          track: t,
-          maxPlayers: 8,
-          entryFeeLamports: 0,
-        });
-      }
-    } else {
-      // Catalog missing — still show *something*
+    if (all.length === 0) {
+      // Catalog missing OR no bundled track found — still show *something*
       this._addLobby({
         id: "free-rookie",
         track: { id: "default", name: "Placeholder Loop" } as TrackEntry,
         maxPlayers: 8,
         entryFeeLamports: 0,
       });
+      return;
     }
 
-    if (lighthouse) {
+    // Featured rotation: pick up to 3 bundled tracks based on the date.
+    const featured = pickDeterministic(all, 3, daySeed());
+
+    const primary = all.find((t) => t.id === "lighthouse") ?? all[0];
+
+    // Free practice — one lobby per featured (bundled) track
+    for (const t of featured) {
       this._addLobby({
-        id: "wager-0.01-sol",
-        track: cocoa ?? lighthouse,
+        id: `free-${t.id}`,
+        track: t,
         maxPlayers: 8,
-        entryFeeLamports: 10_000_000, // 0.01 SOL
-      });
-      this._addLobby({
-        id: "wager-0.1-sol",
-        track: volcano ?? lighthouse,
-        maxPlayers: 8,
-        entryFeeLamports: 100_000_000, // 0.1 SOL
+        entryFeeLamports: 0,
       });
     }
+
+    // Wager lobbies always run on the primary bundled track for now.
+    this._addLobby({
+      id: "wager-0.01-sol",
+      track: primary,
+      maxPlayers: 8,
+      entryFeeLamports: 10_000_000, // 0.01 SOL
+    });
+    this._addLobby({
+      id: "wager-0.1-sol",
+      track: primary,
+      maxPlayers: 8,
+      entryFeeLamports: 100_000_000, // 0.1 SOL
+    });
   }
 
   private _addLobby(opts: {

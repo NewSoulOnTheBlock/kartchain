@@ -257,19 +257,27 @@ export class RaceRoom extends Room<RaceState> {
   }
 
   /**
-   * Map a raceId back to an STK track id.
-   *   "free-<trackId>"        -> trackId
-   *   "wager-0.01-sol"        -> cocoa_temple (per LobbyRoom seed)
-   *   "wager-0.1-sol"         -> volcano_island
-   *   anything else           -> first race-eligible track in the catalog
+   * Map a raceId back to an STK track id, clamped to tracks that actually
+   * ship in the client pck. Any unknown / unbundled id falls back to the
+   * primary bundled track (lighthouse) so the race scene always renders.
    */
   private _deriveTrackId(raceId: string): string {
-    if (raceId.startsWith("free-")) return raceId.slice("free-".length);
-    if (raceId === "wager-0.01-sol") return "cocoa_temple";
-    if (raceId === "wager-0.1-sol")  return "volcano_island";
-    const tracks = loadTrackCatalog();
-    const first = tracks.find((t) => !t.isArena && !t.isSoccer && !t.isCutscene);
-    return first?.id ?? "default";
+    const bundled = new Set(
+      (process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse")
+        .split(",").map((s) => s.trim()).filter(Boolean)
+    );
+    const fallback = bundled.has("lighthouse") ? "lighthouse" : ([...bundled][0] ?? "default");
+
+    let candidate = "";
+    if (raceId.startsWith("free-")) candidate = raceId.slice("free-".length);
+    else if (raceId === "wager-0.01-sol") candidate = "lighthouse";
+    else if (raceId === "wager-0.1-sol")  candidate = "lighthouse";
+    else {
+      const tracks = loadTrackCatalog();
+      const first = tracks.find((t) => !t.isArena && !t.isSoccer && !t.isCutscene);
+      candidate = first?.id ?? fallback;
+    }
+    return bundled.has(candidate) ? candidate : fallback;
   }
 }
 
