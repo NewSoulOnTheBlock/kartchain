@@ -315,19 +315,21 @@ function makeApi(deps: {
       },
 
       async joinRace(raceId, opts) {
+        const joinStartMs = Date.now();
         try {
           const client = ensureClient();
           if (raceRef.current) await raceRef.current.leave().catch(() => undefined);
           const w = getWallet();
           const wallet = w.publicKey?.toBase58() ?? "";
-          console.log("[kartchain] joining race", raceId);
+          console.log(`[kartchain] joinRace START raceId=${raceId} kartType=${opts?.kartType ?? 0} wallet=${wallet ? wallet.slice(0,8) : "(none)"} url=${COLYSEUS_URL}`);
           const room = await client.joinOrCreate("race", {
             raceId, wallet, kartType: opts?.kartType ?? 0,
             trackId: opts?.trackId,
             entryTxSignature: opts?.entryTxSignature,
           });
+          const joinDurMs = Date.now() - joinStartMs;
           raceRef.current = room;
-          console.log("[kartchain] joined race:", room.roomId, "sessionId:", room.sessionId);
+          console.log(`[kartchain] joinRace JOINED in ${joinDurMs}ms roomId=${room.roomId} sessionId=${room.sessionId}`);
           emitNet({ type: "race:self", sessionId: room.sessionId });
 
           const emitRaceState = () => {
@@ -400,15 +402,27 @@ function makeApi(deps: {
           room.onMessage("settled",   (m: any) => emitNet({ type: "race:settled", txSignature: m.txSignature }));
           room.onMessage("error",     (m: any) => emitNet({ type: "error", code: m.code, message: m.message }));
           room.onError((code, message) => {
-            console.error("[kartchain] race room error", code, message);
-            emitNet({ type: "error", code: String(code), message: message ?? "" });
+            const lifeMs = Date.now() - joinStartMs;
+            console.error(`[kartchain] race room ERROR code=${code} msg=${message} aliveFor=${lifeMs}ms`);
+            emitNet({ type: "error", code: `RACE_ERR_${code}`, message: message ?? "" });
           });
           room.onLeave((code) => {
-            console.warn("[kartchain] race room left, code:", code);
-            emitNet({ type: "error", code: "RACE_LEFT", message: `Disconnected from race (code ${code})` });
+            const lifeMs = Date.now() - joinStartMs;
+            console.warn(`[kartchain] race room LEFT code=${code} aliveFor=${lifeMs}ms firstStateSeen=${firstStateSeen}`);
+            // Suppress the user-facing error if this disconnect happened AFTER
+            // we saw state (race ended normally, or user navigated away). Only
+            // surface it when something truly broke during/right after join.
+            if (!firstStateSeen) {
+              emitNet({
+                type: "error",
+                code: "RACE_LEFT",
+                message: `Disconnected from race after ${lifeMs}ms (WS code ${code}). Server probably crashed onJoin — check Render logs.`,
+              });
+            }
           });
         } catch (err) {
-          console.error("[kartchain] joinRace failed:", err);
+          const dur = Date.now() - joinStartMs;
+          console.error(`[kartchain] joinRace FAILED after ${dur}ms:`, err);
           emitNet({ type: "error", code: "RACE_JOIN_FAILED", message: String(err) });
         }
       },
