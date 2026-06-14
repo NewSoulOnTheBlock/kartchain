@@ -11,7 +11,7 @@ import { pickRaceTracks, type TrackEntry } from "../content/catalog.js";
  * (comma-separated list of track ids).
  */
 const BUNDLED_TRACK_IDS: Set<string> = new Set(
-  (process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse")
+  (process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse,cocoa_temple")
     .split(",")
     .map((s) => s.trim())
     .filter((s) => s.length > 0)

@@ -357,18 +357,28 @@ export class RaceRoom extends Room<RaceState> {
    * Map a raceId back to an STK track id, clamped to tracks that actually
    * ship in the client pck. Any unknown / unbundled id falls back to the
    * primary bundled track (lighthouse) so the race scene always renders.
+   *
+   * For quick-race rooms (raceId = "quick-Np") we rotate through bundled
+   * tracks based on the UTC date so the same room size gets a different
+   * track day-to-day.
    */
   private _deriveTrackId(raceId: string): string {
-    const bundled = new Set(
-      (process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse")
-        .split(",").map((s) => s.trim()).filter(Boolean)
-    );
-    const fallback = bundled.has("lighthouse") ? "lighthouse" : ([...bundled][0] ?? "default");
+    const bundledList = (process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse,cocoa_temple")
+      .split(",").map((s) => s.trim()).filter(Boolean);
+    const bundled = new Set(bundledList);
+    const fallback = bundled.has("lighthouse") ? "lighthouse" : (bundledList[0] ?? "default");
+
+    // Quick-race: rotate by day so today vs tomorrow plays a different map.
+    if (raceId.startsWith("quick-") && bundledList.length > 0) {
+      const d = new Date();
+      const daySeed = (d.getUTCFullYear() * 10000) + ((d.getUTCMonth() + 1) * 100) + d.getUTCDate();
+      return bundledList[daySeed % bundledList.length];
+    }
 
     let candidate = "";
     if (raceId.startsWith("free-")) candidate = raceId.slice("free-".length);
     else if (raceId === "wager-0.01-sol") candidate = "lighthouse";
-    else if (raceId === "wager-0.1-sol")  candidate = "lighthouse";
+    else if (raceId === "wager-0.1-sol")  candidate = "cocoa_temple";
     else {
       const tracks = loadTrackCatalog();
       const first = tracks.find((t) => !t.isArena && !t.isSoccer && !t.isCutscene);
