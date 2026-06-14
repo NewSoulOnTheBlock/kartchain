@@ -10,6 +10,10 @@ size = Vector3(1.4, 0.7, 2.2)
 
 [node name="Kart" type="VehicleBody3D"]
 mass = 200.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -0.45, 0)
+angular_damp = 2.5
+linear_damp = 0.05
 script = ExtResource("1_kart")
 
 [node name="Collision" type="CollisionShape3D" parent="."]
@@ -22,28 +26,41 @@ mesh = SubResource("kart_mesh")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, -0.3, -0.9)
 use_as_traction = true
 use_as_steering = true
+wheel_friction_slip = 14.0
 wheel_radius = 0.35
-suspension_stiffness = 30.0
-suspension_max_force = 6000.0
+suspension_stiffness = 40.0
+suspension_max_force = 8000.0
+damping_compression = 0.8
+damping_relaxation = 0.85
 
 [node name="WheelFR" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.3, -0.9)
 use_as_traction = true
 use_as_steering = true
+wheel_friction_slip = 14.0
 wheel_radius = 0.35
-suspension_stiffness = 30.0
-suspension_max_force = 6000.0
+suspension_stiffness = 40.0
+suspension_max_force = 8000.0
+damping_compression = 0.8
+damping_relaxation = 0.85
 
 [node name="WheelBL" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, -0.3, 0.9)
 use_as_traction = true
+wheel_friction_slip = 14.0
 wheel_radius = 0.35
-suspension_stiffness = 30.0
-suspension_max_force = 6000.0
+suspension_stiffness = 40.0
+suspension_max_force = 8000.0
+damping_compression = 0.8
+damping_relaxation = 0.85
 
 [node name="WheelBR" type="VehicleWheel3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.3, 0.9)
 use_as_traction = true
+wheel_friction_slip = 14.0
 wheel_radius = 0.35
-suspension_stiffness = 30.0
-suspension_max_force = 6000.0
+suspension_stiffness = 40.0
+suspension_max_force = 8000.0
+damping_compression = 0.8
+damping_relaxation = 0.85
+

@@ -16,6 +16,11 @@ extends VehicleBody3D
 @export var brake_force_max: float = 22.0
 @export var steering_max: float = 0.45
 @export var steering_speed: float = 4.0  # how fast wheels turn to target
+# At top speed the kart steers a fraction of its low-speed max so it doesn't
+# tip on a quick flick. 0.4 ≈ 40% steering authority at high speed.
+@export var steering_high_speed_factor: float = 0.4
+# Speed (m/s) at which steering reduction reaches full.
+@export var steering_speed_cutoff: float = 28.0
 
 var _input_throttle: float = 0.0
 var _input_brake: float = 0.0
@@ -29,6 +34,12 @@ var _net_lerp_speed: float = 10.0
 
 # Loaded STK model node — if present, hides the placeholder Body
 var _stk_model: Node3D = null
+
+# Auto-recovery: count seconds the kart has been severely tilted or upside down.
+const TILT_OK_DOT: float = 0.55          # local-up vs world-up dot product threshold
+const AUTO_RECOVER_AFTER_SEC: float = 1.5
+var _tilted_for: float = 0.0
+var _recover_cooldown: float = 0.0       # min spacing between recoveries
 
 func apply_stats(top_speed_pct: float, accel_pct: float, handling_pct: float) -> void:
 	engine_force_max = 160.0 + 120.0 * accel_pct
@@ -61,6 +72,7 @@ func _physics_process(delta: float) -> void:
 	if is_local:
 		_read_local_input()
 		_apply_drive(delta)
+		_check_auto_recover(delta)
 		_send_input_if_due()
 	else:
 		_interpolate_to_target(delta)
@@ -86,8 +98,49 @@ func _apply_drive(delta: float) -> void:
 	# No active brake — pressing S applies reverse engine force instead, which
 	# both slows a forward-moving kart and lets you back up from a standstill.
 	brake = 0.0
-	_current_steer = lerp(_current_steer, _input_steer * steering_max, clamp(steering_speed * delta, 0.0, 1.0))
+	# Speed-based steering authority: at high speed, reduce max steering angle
+	# so a quick A/D flick can't roll the kart. At low speed full authority.
+	var speed_ratio: float = clamp(linear_velocity.length() / steering_speed_cutoff, 0.0, 1.0)
+	var effective_max: float = lerp(steering_max, steering_max * steering_high_speed_factor, speed_ratio)
+	_current_steer = lerp(_current_steer, _input_steer * effective_max, clamp(steering_speed * delta, 0.0, 1.0))
 	steering = _current_steer
+
+## Recovery — call this when the kart is upside-down / stuck.
+## Lifts the kart 1.5m, rotates to upright preserving current heading,
+## zeroes velocities, and gives a small downward settle.
+func recover() -> void:
+	if _recover_cooldown > 0.0:
+		return
+	_recover_cooldown = 1.0
+	_tilted_for = 0.0
+	# Keep the current Y-axis heading (yaw) so the player keeps facing the
+	# same way; reset pitch + roll to zero so the kart lands flat.
+	var yaw := _extract_yaw()
+	var upright := Transform3D(Basis(Vector3.UP, yaw), global_position + Vector3(0, 1.5, 0))
+	global_transform = upright
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	engine_force = 0.0
+	steering = 0.0
+	_current_steer = 0.0
+
+func _extract_yaw() -> float:
+	# Project current forward (-Z basis) onto the XZ plane then atan2.
+	var fwd := -global_transform.basis.z
+	return atan2(fwd.x, fwd.z) + PI    # +PI because our -Z forward is reversed at spawn
+
+## Watch for prolonged upside-down state and auto-recover so players
+## don't get stuck. Threshold: local-up dot world-up < TILT_OK_DOT.
+func _check_auto_recover(delta: float) -> void:
+	if _recover_cooldown > 0.0:
+		_recover_cooldown = max(0.0, _recover_cooldown - delta)
+	var uprightness: float = global_transform.basis.y.dot(Vector3.UP)
+	if uprightness < TILT_OK_DOT:
+		_tilted_for += delta
+		if _tilted_for >= AUTO_RECOVER_AFTER_SEC:
+			recover()
+	else:
+		_tilted_for = max(0.0, _tilted_for - delta * 2.0)
 
 var _input_send_accumulator: float = 0.0
 func _send_input_if_due() -> void:
@@ -104,3 +157,4 @@ func _interpolate_to_target(delta: float) -> void:
 func set_net_target(pos: Vector3, yaw: float) -> void:
 	_net_target_pos = pos
 	_net_target_yaw = yaw
+

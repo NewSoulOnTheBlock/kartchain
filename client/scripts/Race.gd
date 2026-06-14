@@ -127,6 +127,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		if k.keycode == KEY_F1:
 			_free_cam_enabled = not _free_cam_enabled
 			_apply_camera_mode()
+		elif k.keycode == KEY_R:
+			# Manual recover — flip upright + lift, preserve heading.
+			if local_kart and is_instance_valid(local_kart) and local_kart.has_method("recover"):
+				local_kart.recover()
 
 func _apply_camera_mode() -> void:
 	if camera.has_method("enable"):
