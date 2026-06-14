@@ -1,0 +1,106 @@
+[gd_scene load_steps=3 format=3 uid="uid://kartchain_editprofile"]
+
+[ext_resource type="Script" path="res://scripts/EditProfile.gd" id="1_edit"]
+[ext_resource type="Texture2D" path="res://assets/lobby_bg.png" id="2_bg"]
+
+[node name="EditProfile" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_edit")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Scrim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.043, 0.063, 0.125, 0.78)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 48
+theme_override_constants/margin_top = 48
+theme_override_constants/margin_right = 48
+theme_override_constants/margin_bottom = 48
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Title" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "EDIT PROFILE"
+
+[node name="PFP" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 24
+
+[node name="Preview" type="TextureRect" parent="Margin/VBox/PFP"]
+custom_minimum_size = Vector2(140, 140)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/VBox/PFP"]
+custom_minimum_size = Vector2(0, 160)
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="Grid" type="GridContainer" parent="Margin/VBox/PFP/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 9
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="Form" type="VBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="NameLabel" type="Label" parent="Margin/VBox/Form"]
+layout_mode = 2
+text = "Name"
+
+[node name="NameInput" type="LineEdit" parent="Margin/VBox/Form"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+max_length = 24
+placeholder_text = "Racer name"
+
+[node name="BioLabel" type="Label" parent="Margin/VBox/Form"]
+layout_mode = 2
+text = "Bio"
+
+[node name="BioInput" type="TextEdit" parent="Margin/VBox/Form"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+placeholder_text = "Tell the track who you are..."
+
+[node name="Buttons" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Skip" type="Button" parent="Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(160, 48)
+layout_mode = 2
+text = "Skip"
+
+[node name="Save" type="Button" parent="Margin/VBox/Buttons"]
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+text = "SAVE & CONTINUE"

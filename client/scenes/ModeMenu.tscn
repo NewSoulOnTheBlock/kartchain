@@ -1,0 +1,83 @@
+[gd_scene load_steps=3 format=3 uid="uid://kartchain_modemenu"]
+
+[ext_resource type="Script" path="res://scripts/ModeMenu.gd" id="1_mode"]
+[ext_resource type="Texture2D" path="res://assets/lobby_bg.png" id="2_bg"]
+
+[node name="ModeMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_mode")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Scrim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.043, 0.063, 0.125, 0.72)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 60
+theme_override_constants/margin_bottom = 60
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 40
+
+[node name="Title" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+text = "CHOOSE MODE"
+
+[node name="Modes" type="VBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 16
+
+[node name="SinglePlayer" type="Button" parent="Margin/VBox/Modes"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "SINGLE PLAYER"
+
+[node name="GrandPrix" type="Button" parent="Margin/VBox/Modes"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "GRAND PRIX"
+
+[node name="QuickRace" type="Button" parent="Margin/VBox/Modes"]
+custom_minimum_size = Vector2(0, 72)
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "QUICK RACE"
+
+[node name="Footer" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="EditProfile" type="Button" parent="Margin/VBox/Footer"]
+custom_minimum_size = Vector2(180, 44)
+layout_mode = 2
+text = "Edit Profile"
+
+[node name="SignOut" type="Button" parent="Margin/VBox/Footer"]
+custom_minimum_size = Vector2(140, 44)
+layout_mode = 2
+text = "Sign Out"

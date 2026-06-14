@@ -8,7 +8,7 @@ config_version=5
 
 config/name="Kartchain"
 config/description="Web3 SuperTuxKart-inspired browser kart racer"
-run/main_scene="res://scenes/Main.tscn"
+run/main_scene="res://scenes/SignIn.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 

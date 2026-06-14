@@ -1,0 +1,102 @@
+[gd_scene load_steps=3 format=3 uid="uid://kartchain_signin"]
+
+[ext_resource type="Script" path="res://scripts/SignIn.gd" id="1_signin"]
+[ext_resource type="Texture2D" path="res://assets/lobby_bg.png" id="2_bg"]
+
+[node name="SignIn" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_signin")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Scrim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.35)
+
+[node name="ConnectFloat" type="VBoxContainer" parent="."]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -160.0
+offset_top = -140.0
+offset_right = 160.0
+offset_bottom = -40.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Tagline" type="Label" parent="ConnectFloat"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+text = "8-player onchain kart racing"
+modulate = Color(1, 1, 1, 0.9)
+
+[node name="ConnectBtn" type="Button" parent="ConnectFloat"]
+custom_minimum_size = Vector2(280, 56)
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "CONNECT WALLET → PLAY"
+
+[node name="Modal" type="Panel" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -180.0
+offset_right = 260.0
+offset_bottom = 180.0
+
+[node name="VBox" type="VBoxContainer" parent="Modal"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+theme_override_constants/separation = 16
+
+[node name="Title" type="Label" parent="Modal/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "JOIN TRENCHKART"
+
+[node name="Status" type="Label" parent="Modal/VBox"]
+layout_mode = 2
+autowrap_mode = 3
+text = ""
+
+[node name="NameLabel" type="Label" parent="Modal/VBox"]
+layout_mode = 2
+text = "Racer name"
+
+[node name="NameInput" type="LineEdit" parent="Modal/VBox"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+placeholder_text = "e.g. KartGod69"
+max_length = 24
+
+[node name="Confirm" type="Button" parent="Modal/VBox"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "CONFIRM"
