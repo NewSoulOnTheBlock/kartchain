@@ -23,21 +23,37 @@ class _LodGroup:
 	var best_model: String = ""
 	var best_distance: float = 99999.0
 
+## Returns a tight starting-grid offset for the Nth kart (0-indexed).
+## 2 karts per row, 1.5m apart side-to-side, 3m row spacing.
+## Row 0 is at the spawn point; rows N>0 sit behind it on +Z.
+func grid_slot(n: int) -> Vector3:
+	var col := n % 2
+	var row := n / 2
+	var x := -0.75 if col == 0 else 0.75
+	var z := float(row) * 3.0
+	return Vector3(x, 0.0, z)
+
+## Lift applied when no broadcast spawn override exists — gives the kart a
+## tiny gap so its wheels are above the ground at spawn time. Server-broadcast
+## overrides are ASSUMED to be on the ground (the player set them while
+## standing on the track) so they get no lift.
+const GROUND_LIFT := 0.6
+
 ## Suggested spawn offset for a given STK track. Servers position karts at
 ## a flat grid around (0, 0.5, 0); we add this offset before placing them so
-## they land on the actual start line and have a clear road ahead.
-## Numbers are hand-calibrated by reading scene.xml roughly. Refine over time.
+## they land near the start line. Used ONLY when nobody in the room has
+## pressed Y yet. Smaller Y now — we don't want them to fall.
 func spawn_offset(track_id: String) -> Vector3:
 	match track_id:
-		"lighthouse":      return Vector3(  0, 25, 0)
-		"cocoa_temple":    return Vector3(  0, 30, 0)
-		"volcano_island":  return Vector3(  0, 50, 0)
-		"black_forest":    return Vector3(  0, 30, 0)
-		"cornfield_crossing": return Vector3(0, 20, 0)
-		"snowtuxpeak":     return Vector3(  0, 40, 0)
-		"oasis":           return Vector3(  0, 20, 0)
-		"pumpkin_park":    return Vector3(  0, 20, 0)
-		_:                 return Vector3(  0, 20, 0)  # default: spawn above
+		"lighthouse":      return Vector3(  0, 2, 0)
+		"cocoa_temple":    return Vector3(  0, 2, 0)
+		"volcano_island":  return Vector3(  0, 2, 0)
+		"black_forest":    return Vector3(  0, 2, 0)
+		"cornfield_crossing": return Vector3(0, 2, 0)
+		"snowtuxpeak":     return Vector3(  0, 2, 0)
+		"oasis":           return Vector3(  0, 2, 0)
+		"pumpkin_park":    return Vector3(  0, 2, 0)
+		_:                 return Vector3(  0, 2, 0)
 
 func load_track(track_id: String) -> Node3D:
 	var base := "res://tracks/%s/" % track_id

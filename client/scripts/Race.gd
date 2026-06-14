@@ -84,28 +84,26 @@ func _load_persisted_spawn() -> void:
 # track's spawn offset so all karts (including remote ones) respawn there.
 func set_spawn_at_world_position(world_pos: Vector3) -> void:
 	_spawn_override_world = world_pos
-	# Persist locally so reload re-applies it for this player.
 	if _loaded_track_id != "":
 		var payload = JSON.stringify({"x": world_pos.x, "y": world_pos.y, "z": world_pos.z})
 		SolanaBridge.storage_set(_spawn_storage_key(), payload)
-	# Broadcast to every player in this room — so a friend who joins sees
-	# everyone at the same shared starting line.
 	NetworkClient.set_spawn(world_pos.x, world_pos.y, world_pos.z)
 	print("[race] spawn point set + broadcast: ", world_pos)
-	for pid in karts_by_id.keys():
+	# Re-place every kart on the racing grid centered on the new spawn.
+	var ids := karts_by_id.keys()
+	ids.sort()
+	for i in ids.size():
+		var pid = ids[i]
 		var kart: VehicleBody3D = karts_by_id[pid]
 		if not is_instance_valid(kart):
 			continue
-		var idx = karts_by_id.keys().find(pid)
-		var col = idx % 4
-		var row = idx / 4
-		var grid_off = Vector3(col * 2.5 - 3.75, 0, -row * 3.0)
+		var grid := TrackLoader.grid_slot(i)
 		kart.linear_velocity = Vector3.ZERO
 		kart.angular_velocity = Vector3.ZERO
-		kart.global_position = world_pos + grid_off
+		kart.global_position = world_pos + grid + Vector3(0, TrackLoader.GROUND_LIFT, 0)
 	var hint = hud.get_node_or_null("DebugHint")
 	if hint:
-		hint.text = "Spawn saved (%.1f, %.1f, %.1f)  [R = clear]\nF1: kart-follow   Y: re-set spawn here" % [
+		hint.text = "Spawn saved (%.1f, %.1f, %.1f) — shared with all players\nF1: kart-follow   Y: re-set spawn here   R: recover" % [
 			world_pos.x, world_pos.y, world_pos.z
 		]
 
@@ -158,14 +156,12 @@ func _on_race_state(state: Dictionary) -> void:
 	if track_id != "" and track_id != _loaded_track_id:
 		_load_track(track_id)
 		_loaded_track_id = track_id
-		# Load any persisted spawn override for this track
 		_load_persisted_spawn()
 
 	if not state.has("karts"):
 		return
 	var karts = state["karts"]
-	# Server-broadcast spawn override takes priority over local one — so all
-	# players in the room see karts at the same place.
+	# Server-broadcast spawn override wins — every player sees the same start point.
 	var server_has_override := bool(state.get("hasSpawnOverride", false))
 	if server_has_override:
 		_spawn_override_world = Vector3(
@@ -173,30 +169,35 @@ func _on_race_state(state: Dictionary) -> void:
 			float(state.get("spawnY", 0.0)),
 			float(state.get("spawnZ", 0.0)))
 	var has_override := _spawn_override_world != Vector3.INF
-	var offset := Vector3.ZERO if has_override else (
-		TrackLoader.spawn_offset(_loaded_track_id) if _loaded_track_id != "" else Vector3.ZERO)
-	for pid_var in karts.keys():
+	# Spawn anchor in world coords. With a broadcast override (player set it
+	# from the ground), use it as-is. Without, fall back to track defaults
+	# which assume a small Y lift.
+	var anchor: Vector3 = (
+		_spawn_override_world if has_override
+		else TrackLoader.spawn_offset(_loaded_track_id) if _loaded_track_id != ""
+		else Vector3.ZERO
+	)
+	# Sort karts by playerId so every client builds the same grid order.
+	var ids := karts.keys()
+	ids.sort()
+	for i in ids.size():
+		var pid_var = ids[i]
 		var pid := String(pid_var)
 		var k_data: Dictionary = karts[pid_var]
 		var node: VehicleBody3D = karts_by_id.get(pid, null)
 		var spawning := node == null
+		var grid := TrackLoader.grid_slot(i)
+		# Slight upward lift so wheels aren't intersecting the ground
+		var spawn_world: Vector3 = anchor + grid + Vector3(0, TrackLoader.GROUND_LIFT, 0)
 		if node == null:
 			node = _spawn_kart(pid, k_data)
-			# Stagger initial position in a grid so karts don't pile up.
-			var grid_idx = karts_by_id.size() - 1
-			var col = grid_idx % 4
-			var row = grid_idx / 4
-			var grid_off = Vector3(col * 2.5 - 3.75, 0, -row * 3.0)
-			if has_override:
-				node.global_position = _spawn_override_world + grid_off
-			else:
-				node.global_position = Vector3(
-					float(k_data.get("x", 0.0)),
-					float(k_data.get("y", 0.5)),
-					float(k_data.get("z", 0.0))) + offset
+			node.linear_velocity = Vector3.ZERO
+			node.angular_velocity = Vector3.ZERO
+			node.global_position = spawn_world
 		var pos := Vector3(float(k_data.get("x", 0.0)), float(k_data.get("y", 0.0)), float(k_data.get("z", 0.0)))
 		var yaw := float(k_data.get("yaw", 0.0))
-		var target_world = (_spawn_override_world + pos) if has_override else (pos + offset)
+		# Remote karts follow server pos + the same shared anchor + their grid slot
+		var target_world := anchor + grid + Vector3(0, TrackLoader.GROUND_LIFT, 0) + Vector3(pos.x, 0, pos.z)
 		if node == local_kart:
 			var phase := String(state.get("phase", "waiting"))
 			if phase == "racing":
