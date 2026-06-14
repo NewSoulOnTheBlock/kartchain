@@ -75,7 +75,14 @@ func track_model_path(track_id: String) -> String:
 ## build. Used by the lobby UI to hide rows that the WASM bundle didn't
 ## ship — otherwise players join a "racing" room and see only the
 ## placeholder ground plane.
+##
+## NOTE: we use FileAccess.file_exists() rather than ResourceLoader.exists()
+## because scene.xml is shipped as a raw file via the export preset's
+## include_filter (*.xml,*.json) — it has no .import sidecar so the
+## ResourceLoader doesn't know about it. TrackLoader.load_track() opens
+## the same file with FileAccess, so this check matches what actually
+## works at runtime.
 func has_bundled_track(track_id: String) -> bool:
 	if track_id.is_empty():
 		return false
-	return ResourceLoader.exists("res://tracks/%s/scene.xml" % track_id)
+	return FileAccess.file_exists("res://tracks/%s/scene.xml" % track_id)

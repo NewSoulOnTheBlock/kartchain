@@ -371,7 +371,10 @@ export class RaceRoom extends Room<RaceState> {
    *   anything else        - first race-eligible bundled track
    */
   private _deriveTrackId(raceId: string): string {
-    const bundledList = (process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse,cocoa_temple")
+    const bundledList = (
+      process.env.CLIENT_BUNDLED_TRACKS ??
+      "lighthouse,cocoa_temple,hacienda,snowmountain,scotland,snowtuxpeak,sandtrack"
+    )
       .split(",").map((s) => s.trim()).filter(Boolean);
     const bundled = new Set(bundledList);
     const fallback = bundled.has("lighthouse") ? "lighthouse" : (bundledList[0] ?? "default");

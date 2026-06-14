@@ -56,7 +56,9 @@ async function main() {
           PORT: process.env.PORT ?? null,
           SOLANA_CLUSTER: process.env.SOLANA_CLUSTER ?? null,
           ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? null,
-          CLIENT_BUNDLED_TRACKS: process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse",
+          CLIENT_BUNDLED_TRACKS:
+            process.env.CLIENT_BUNDLED_TRACKS ??
+            "lighthouse,cocoa_temple,hacienda,snowmountain,scotland,snowtuxpeak,sandtrack",
         },
         rooms: {
           lobby: lobbyRooms.map((r) => ({ roomId: r.roomId, clients: r.clients, metadata: r.metadata })),

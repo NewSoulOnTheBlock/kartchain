@@ -87,19 +87,46 @@ func _build_card(t: Dictionary) -> Control:
 func _resolve_screenshot(t: Dictionary) -> String:
 	var shot := String(t.get("screenshot", ""))
 	if not shot.is_empty():
-		return "res://" + shot
-	# Fallbacks if the catalog entry is missing the field
+		var explicit := "res://" + shot
+		if FileAccess.file_exists(explicit):
+			return explicit
+	# Fallbacks if the catalog entry is missing the field or points at a
+	# file that wasn't bundled in this export.
 	var id := String(t.get("id", ""))
+	var base := "res://tracks/%s/" % id
 	var candidates := [
-		"res://tracks/%s/screenshot.jpg" % id,
-		"res://tracks/%s/screenshot.png" % id,
-		"res://tracks/%s/test_track_postcard.jpg" % id,
-		"res://tracks/%s/postcard.jpg" % id,
+		base + "screenshot.jpg",
+		base + "screenshot.png",
+		base + "test_track_postcard.jpg",
+		base + "postcard.jpg",
+		# STK's original convention is sshot-<name>.jpg, but <name> doesn't
+		# always match the directory id (e.g. snowmountain uses sshot-mountain.jpg).
+		base + "sshot-%s.jpg" % id,
 	]
 	for c in candidates:
-		if ResourceLoader.exists(c):
+		if FileAccess.file_exists(c):
 			return c
-	return ""
+	# Final fallback: any sshot-*.jpg in the track dir picks up the rest.
+	return _find_sshot_in_dir(base)
+
+func _find_sshot_in_dir(base: String) -> String:
+	var dir := DirAccess.open(base)
+	if dir == null:
+		return ""
+	dir.list_dir_begin()
+	var found := ""
+	while true:
+		var fname := dir.get_next()
+		if fname == "":
+			break
+		if dir.current_is_dir():
+			continue
+		var lower := fname.to_lower()
+		if lower.begins_with("sshot-") and (lower.ends_with(".jpg") or lower.ends_with(".png")):
+			found = base + fname
+			break
+	dir.list_dir_end()
+	return found
 
 func _on_pick(track_id: String) -> void:
 	var size := max(2, GameState.pending_max_players)

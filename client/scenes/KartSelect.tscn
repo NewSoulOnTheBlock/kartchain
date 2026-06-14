@@ -1,6 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://kartchain_kartselect"]
+[gd_scene load_steps=3 format=3 uid="uid://kartchain_kartselect"]
 
 [ext_resource type="Script" path="res://scripts/KartSelect.gd" id="1_kartselect"]
+
+[sub_resource type="ProceduralSkyMaterial" id="SkyMat_pick"]
+sky_top_color = Color(0.156, 0.235, 0.408, 1)
+sky_horizon_color = Color(0.4, 0.55, 0.78, 1)
+ground_bottom_color = Color(0.07, 0.09, 0.16, 1)
+ground_horizon_color = Color(0.27, 0.32, 0.45, 1)
+
+[sub_resource type="Sky" id="Sky_pick"]
+sky_material = SubResource("SkyMat_pick")
+
+[sub_resource type="Environment" id="Env_pick"]
+background_mode = 2
+sky = SubResource("Sky_pick")
+ambient_light_source = 3
+ambient_light_color = Color(0.85, 0.88, 1, 1)
+ambient_light_sky_contribution = 0.8
+ambient_light_energy = 0.7
+tonemap_mode = 2
 
 [node name="KartSelect" type="Control"]
 layout_mode = 3
@@ -37,19 +55,74 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 36
 text = "PICK YOUR RACER"
 
-[node name="Scroll" type="ScrollContainer" parent="Margin/VBox"]
+[node name="MainRow" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="Scroll" type="ScrollContainer" parent="Margin/VBox/MainRow"]
 custom_minimum_size = Vector2(0, 520)
 layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.4
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="Grid" type="GridContainer" parent="Margin/VBox/Scroll"]
+[node name="Grid" type="GridContainer" parent="Margin/VBox/MainRow/Scroll"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-columns = 6
+columns = 5
 theme_override_constants/h_separation = 16
 theme_override_constants/v_separation = 16
+
+[node name="PreviewPanel" type="PanelContainer" parent="Margin/VBox/MainRow"]
+custom_minimum_size = Vector2(440, 520)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.0
+size_flags_vertical = 3
+
+[node name="PreviewVBox" type="VBoxContainer" parent="Margin/VBox/MainRow/PreviewPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="PreviewLabel" type="Label" parent="Margin/VBox/MainRow/PreviewPanel/PreviewVBox"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 22
+modulate = Color(1, 0.95, 0.45, 1)
+text = "—"
+
+[node name="Viewport" type="SubViewportContainer" parent="Margin/VBox/MainRow/PreviewPanel/PreviewVBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="Margin/VBox/MainRow/PreviewPanel/PreviewVBox/Viewport"]
+handle_input_locally = false
+size = Vector2i(420, 420)
+render_target_clear_mode = 2
+render_target_update_mode = 4
+
+[node name="Environment" type="WorldEnvironment" parent="Margin/VBox/MainRow/PreviewPanel/PreviewVBox/Viewport/SubViewport"]
+environment = SubResource("Env_pick")
+
+[node name="Sun" type="DirectionalLight3D" parent="Margin/VBox/MainRow/PreviewPanel/PreviewVBox/Viewport/SubViewport"]
+transform = Transform3D(0.866, -0.354, 0.354, 0, 0.707, 0.707, -0.5, -0.612, 0.612, 0, 5, 0)
+light_energy = 1.3
+
+[node name="Rim" type="DirectionalLight3D" parent="Margin/VBox/MainRow/PreviewPanel/PreviewVBox/Viewport/SubViewport"]
+transform = Transform3D(-0.5, 0, -0.866, 0, 1, 0, 0.866, 0, -0.5, 0, 5, 0)
+light_color = Color(0.55, 0.75, 1, 1)
+light_energy = 0.55
+
+[node name="Camera3D" type="Camera3D" parent="Margin/VBox/MainRow/PreviewPanel/PreviewVBox/Viewport/SubViewport"]
+transform = Transform3D(1, 0, 0, 0, 0.866, 0.5, 0, -0.5, 0.866, 0, 1.5, 3.5)
+fov = 38.0
+
+[node name="KartPivot" type="Node3D" parent="Margin/VBox/MainRow/PreviewPanel/PreviewVBox/Viewport/SubViewport"]
 
 [node name="Info" type="Label" parent="Margin/VBox"]
 layout_mode = 2
@@ -68,3 +141,4 @@ text = "Back"
 custom_minimum_size = Vector2(220, 48)
 layout_mode = 2
 text = "Race!"
+
