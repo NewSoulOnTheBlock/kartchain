@@ -1,0 +1,12 @@
+{
+  "id": "battleisland",
+  "displayName": "Battle Island",
+  "groups": "standard",
+  "arena": true,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "2011 Iwan 'qubodup' Gabovitch",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "battleisland_track.spm",
+  "screenshot": null
+}

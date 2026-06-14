@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  server-and-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Generate dev keypairs (CI-only)
+        working-directory: server
+        run: pnpm keys:gen
+      - name: Typecheck server
+        working-directory: server
+        run: pnpm lint
+      - name: Test server
+        working-directory: server
+        run: pnpm test
+      - name: Typecheck web
+        working-directory: web
+        run: pnpm exec tsc --noEmit
+      - name: Build web (without Godot bundle)
+        working-directory: web
+        run: pnpm build

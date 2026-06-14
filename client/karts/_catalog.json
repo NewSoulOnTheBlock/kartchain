@@ -1,0 +1,365 @@
+{
+  "generatedAt": "2026-06-14T15:28:37.322Z",
+  "karts": [
+    {
+      "id": "adiumy",
+      "name": "Adiumy",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "STK contributors",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/adiumy/adiumy.spm",
+      "icon": "karts/adiumy/adiumyicon.png",
+      "minimapIcon": "karts/adiumy/adiumyicon.png",
+      "shadow": "karts/adiumy/adiumyshadow.png",
+      "rgb": "0.00 0.70 0.00",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "amanda",
+      "name": "Amanda",
+      "type": "heavy",
+      "groups": [
+        "standard"
+      ],
+      "author": "2017 Jean-Manuel Clémençon <sam.un@protonmail.com>",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/amanda/amanda.spm",
+      "icon": "karts/amanda/amanda_icon.png",
+      "minimapIcon": "karts/amanda/amanda_icon.png",
+      "shadow": "karts/amanda/amanda_shadow.png",
+      "rgb": "1.00 1.00 1.00",
+      "stats": {
+        "topSpeed": 1,
+        "accel": 0.6,
+        "handling": 0.6
+      }
+    },
+    {
+      "id": "beastie",
+      "name": "Godette",
+      "type": "heavy",
+      "groups": [
+        "standard"
+      ],
+      "author": "STK contributors",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/beastie/godette.spm",
+      "icon": "karts/beastie/godette-icon.png",
+      "minimapIcon": "karts/beastie/godette-icon.png",
+      "shadow": "karts/beastie/godette-shadow.png",
+      "rgb": "0.25 0.61 1.00",
+      "stats": {
+        "topSpeed": 1,
+        "accel": 0.6,
+        "handling": 0.6
+      }
+    },
+    {
+      "id": "emule",
+      "name": "Emule",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "2021 ZAQraven <zaqraven99@protonmail.com>",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/emule/emule.spm",
+      "icon": "karts/emule/emule_icon128.png",
+      "minimapIcon": "karts/emule/emule_icon32.png",
+      "shadow": "karts/emule/emule_shadow.png",
+      "rgb": "1.00 0.00 0.00",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "gavroche",
+      "name": "Gavroche",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "STK contributors",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/gavroche/gavroche.spm",
+      "icon": "karts/gavroche/gavroche_icon.png",
+      "minimapIcon": "karts/gavroche/gavroche_icon.png",
+      "shadow": "karts/gavroche/gavroche_shadow.png",
+      "rgb": "1.00 1.00 1.00",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "gnu",
+      "name": "Gnu",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "STK contributors",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/gnu/gnu.spm",
+      "icon": "karts/gnu/gnuicon.png",
+      "minimapIcon": "karts/gnu/gnuicon.png",
+      "shadow": "karts/gnu/gnushadow.png",
+      "rgb": "1.00 0.70 0.00",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "hexley",
+      "name": "Hexley",
+      "type": "light",
+      "groups": [
+        "standard"
+      ],
+      "author": "2017 Néd J. \"jymis\" Édoire <nwad@crypticgate.net>",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/hexley/hexley.spm",
+      "icon": "karts/hexley/hexleyicon.png",
+      "minimapIcon": "karts/hexley/hexleyicon32.png",
+      "shadow": "karts/hexley/hexley_shadow.png",
+      "rgb": "0.78 0.23 0.23",
+      "stats": {
+        "topSpeed": 0.85,
+        "accel": 0.95,
+        "handling": 0.95
+      }
+    },
+    {
+      "id": "kiki",
+      "name": "Kiki",
+      "type": "light",
+      "groups": [
+        "standard"
+      ],
+      "author": "2017 Néd J. \"jymis\" Édoire <nwad@crypticgate.net>",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/kiki/kiki.spm",
+      "icon": "karts/kiki/kiki_icon.png",
+      "minimapIcon": "karts/kiki/kiki_icon.png",
+      "shadow": "karts/kiki/kiki_shadow.png",
+      "rgb": "0.01 0.72 1.00",
+      "stats": {
+        "topSpeed": 0.85,
+        "accel": 0.95,
+        "handling": 0.95
+      }
+    },
+    {
+      "id": "konqi",
+      "name": "Konqi",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "2017 Benau",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/konqi/konqi.spm",
+      "icon": "karts/konqi/konqi_icon.png",
+      "minimapIcon": "karts/konqi/konqi_icon.png",
+      "shadow": "karts/konqi/konqi_shadow.png",
+      "rgb": "0.00 0.59 0.00",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "nolok",
+      "name": "Nolok",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "2009 Tobias \"Tob\" \"cheleb\" Beyrer",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/nolok/nolok.spm",
+      "icon": "karts/nolok/nolokicon.png",
+      "minimapIcon": "karts/nolok/nolokicon.png",
+      "shadow": "karts/nolok/nolokshadow.png",
+      "rgb": "0.25 0.21 0.06",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "pidgin",
+      "name": "Pidgin",
+      "type": "heavy",
+      "groups": [
+        "standard"
+      ],
+      "author": "2017 Jean-Manuel \"samuncle\" Clémençon <sam.un@protonmail.com>",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/pidgin/pidgin.spm",
+      "icon": "karts/pidgin/pidginicon.png",
+      "minimapIcon": "karts/pidgin/pidginicon.png",
+      "shadow": "karts/pidgin/pidginshadow.png",
+      "rgb": "0.42 0.25 0.46",
+      "stats": {
+        "topSpeed": 1,
+        "accel": 0.6,
+        "handling": 0.6
+      }
+    },
+    {
+      "id": "puffy",
+      "name": "Puffy",
+      "type": "heavy",
+      "groups": [
+        "standard"
+      ],
+      "author": "2009 MiniBjorn",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/puffy/puffy.spm",
+      "icon": "karts/puffy/puffy-icon.png",
+      "minimapIcon": "karts/puffy/puffy-icon.png",
+      "shadow": "karts/puffy/puffy-shadow.png",
+      "rgb": "0.00 0.53 0.02",
+      "stats": {
+        "topSpeed": 1,
+        "accel": 0.6,
+        "handling": 0.6
+      }
+    },
+    {
+      "id": "sara_the_racer",
+      "name": "Pepper",
+      "type": "light",
+      "groups": [
+        "standard"
+      ],
+      "author": "STK contributors",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/sara_the_racer/pepper.spm",
+      "icon": "karts/sara_the_racer/icon-pepper.png",
+      "minimapIcon": "karts/sara_the_racer/icon-pepper.png",
+      "shadow": "karts/sara_the_racer/Pepper_shadow.png",
+      "rgb": "1.00 1.00 1.00",
+      "stats": {
+        "topSpeed": 0.85,
+        "accel": 0.95,
+        "handling": 0.95
+      }
+    },
+    {
+      "id": "sara_the_wizard",
+      "name": "Sara",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "STK contributors",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/sara_the_wizard/sara.spm",
+      "icon": "karts/sara_the_wizard/icon-sara.png",
+      "minimapIcon": "karts/sara_the_wizard/icon-sara.png",
+      "shadow": "karts/sara_the_wizard/sara-shadow.png",
+      "rgb": "1.00 1.00 1.00",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "suzanne",
+      "name": "Suzanne",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "2011 Cédric \"Céa\" Archambault <https://plus.google.com/117805441573276168348>",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/suzanne/suzanne.spm",
+      "icon": "karts/suzanne/icon_large.png",
+      "minimapIcon": "karts/suzanne/icon32.png",
+      "shadow": "karts/suzanne/shadow.png",
+      "rgb": "0.91 0.55 0.07",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "tux",
+      "name": "Tux",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "STK contributors",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/tux/tux.spm",
+      "icon": "karts/tux/tux_icon.png",
+      "minimapIcon": "karts/tux/tux_icon.png",
+      "shadow": "karts/tux/tux_shadow.png",
+      "rgb": "1.00 0.00 0.00",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    },
+    {
+      "id": "wilber",
+      "name": "Wilber",
+      "type": "light",
+      "groups": [
+        "standard"
+      ],
+      "author": "STK contributors",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/wilber/wilber.spm",
+      "icon": "karts/wilber/wilbericon.png",
+      "minimapIcon": "karts/wilber/wilbericon32.png",
+      "shadow": "karts/wilber/wilber_shadow.png",
+      "rgb": "1.00 0.42 0.00",
+      "stats": {
+        "topSpeed": 0.85,
+        "accel": 0.95,
+        "handling": 0.95
+      }
+    },
+    {
+      "id": "xue",
+      "name": "Xue",
+      "type": "medium",
+      "groups": [
+        "standard"
+      ],
+      "author": "2018 Jean-Manuel Clémençon for SuperTuxKart team (3D objects and textures)",
+      "license": "CC-BY-SA 4.0",
+      "model": "karts/xue/xue.spm",
+      "icon": "karts/xue/xfce_icon64.png",
+      "minimapIcon": "karts/xue/xfce_icon32.png",
+      "shadow": "karts/xue/shadow.png",
+      "rgb": "0.03 0.40 1.00",
+      "stats": {
+        "topSpeed": 0.9,
+        "accel": 0.8,
+        "handling": 0.8
+      }
+    }
+  ]
+}

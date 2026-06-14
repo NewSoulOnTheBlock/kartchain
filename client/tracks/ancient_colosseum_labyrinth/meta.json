@@ -1,0 +1,12 @@
+{
+  "id": "ancient_colosseum_labyrinth",
+  "displayName": "Ancient Colosseum Labyrinth",
+  "groups": "standard",
+  "arena": true,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Typhon306",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "ancient_colosseum_labyrinth_track.spm",
+  "screenshot": "screenshot.jpg"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "oasis",
+  "displayName": "Oasis",
+  "groups": "standard",
+  "arena": false,
+  "soccer": true,
+  "cutscene": false,
+  "designer": "CrystalDaEevee",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "oasis_track.spm",
+  "screenshot": "screenshot.jpg"
+}

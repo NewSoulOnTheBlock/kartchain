@@ -1,0 +1,17 @@
+{
+  "id": "hexley",
+  "displayName": "Hexley",
+  "type": "light",
+  "groups": "standard",
+  "rgb": "0.78 0.23 0.23",
+  "author": "2017 Néd J. \"jymis\" Édoire <nwad@crypticgate.net>",
+  "model": "hexley.spm",
+  "icon": "hexleyicon.png",
+  "minimap": "hexleyicon32.png",
+  "shadow": "hexley_shadow.png",
+  "stats": {
+    "topSpeed": 0.85,
+    "accel": 0.95,
+    "handling": 0.95
+  }
+}

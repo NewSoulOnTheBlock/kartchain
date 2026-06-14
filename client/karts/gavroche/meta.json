@@ -1,0 +1,17 @@
+{
+  "id": "gavroche",
+  "displayName": "Gavroche",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "1.00 1.00 1.00",
+  "author": "STK contributors",
+  "model": "gavroche.spm",
+  "icon": "gavroche_icon.png",
+  "minimap": "gavroche_icon.png",
+  "shadow": "gavroche_shadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

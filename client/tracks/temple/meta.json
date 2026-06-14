@@ -1,0 +1,12 @@
+{
+  "id": "temple",
+  "displayName": "Temple",
+  "groups": "standard",
+  "arena": true,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Anon",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "temple_track.spm",
+  "screenshot": "screenshot.jpg"
+}

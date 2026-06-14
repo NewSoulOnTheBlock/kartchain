@@ -1,0 +1,12 @@
+{
+  "id": "pumpkin_park",
+  "displayName": "Pumpkin Park",
+  "groups": "standard",
+  "arena": true,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Jean-Manuel Cl&#233;men&#231;on",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "pumpkin_park_track.spm",
+  "screenshot": "screenshot.jpg"
+}

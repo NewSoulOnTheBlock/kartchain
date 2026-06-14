@@ -1,0 +1,17 @@
+{
+  "id": "konqi",
+  "displayName": "Konqi",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "0.00 0.59 0.00",
+  "author": "2017 Benau",
+  "model": "konqi.spm",
+  "icon": "konqi_icon.png",
+  "minimap": "konqi_icon.png",
+  "shadow": "konqi_shadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

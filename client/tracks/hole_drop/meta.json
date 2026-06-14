@@ -1,0 +1,12 @@
+{
+  "id": "hole_drop",
+  "displayName": "Hole Drop",
+  "groups": "standard",
+  "arena": false,
+  "soccer": true,
+  "cutscene": false,
+  "designer": "CrystalDaEevee &amp; Sven Andreas Belting",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "hole_drop_track.spm",
+  "screenshot": "screenshot.jpg"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "kiki",
+  "displayName": "Kiki",
+  "type": "light",
+  "groups": "standard",
+  "rgb": "0.01 0.72 1.00",
+  "author": "2017 Néd J. \"jymis\" Édoire <nwad@crypticgate.net>",
+  "model": "kiki.spm",
+  "icon": "kiki_icon.png",
+  "minimap": "kiki_icon.png",
+  "shadow": "kiki_shadow.png",
+  "stats": {
+    "topSpeed": 0.85,
+    "accel": 0.95,
+    "handling": 0.95
+  }
+}

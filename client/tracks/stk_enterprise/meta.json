@@ -1,0 +1,12 @@
+{
+  "id": "stk_enterprise",
+  "displayName": "STK Enterprise",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "rubberduck &amp; Jean-Manuel Cl&#233;men&#231;on",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "stk_enterprise_track.spm",
+  "screenshot": null
+}

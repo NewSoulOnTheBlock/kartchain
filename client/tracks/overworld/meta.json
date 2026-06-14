@@ -1,0 +1,12 @@
+{
+  "id": "overworld",
+  "displayName": "Overworld",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "mmg",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "overworld_track.spm",
+  "screenshot": null
+}

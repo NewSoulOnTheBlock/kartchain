@@ -1,0 +1,56 @@
+# Render blueprint — defines the Kartchain Colyseus service in one file.
+# https://render.com/docs/blueprint-spec
+#
+# To deploy:
+#   1. Push this repo to GitHub
+#   2. On render.com → New + → Blueprint → connect the repo
+#   3. Render reads this file and provisions the service
+#   4. Add the secret env vars in the Render dashboard:
+#        TREASURY_KEYPAIR_JSON
+#        ESCROW_KEYPAIR_JSON
+#        P2E_MINT_AUTHORITY_KEYPAIR_JSON
+#        (KART_NFT_AUTHORITY_KEYPAIR_JSON — optional)
+#        ADMIN_TOKEN
+#        ALLOWED_ORIGINS  (e.g. "https://kartchain.vercel.app")
+#        SOLANA_RPC_URL   (optional; defaults to public devnet RPC)
+#        P2E_TOKEN_MINT   (optional; leave blank to disable P2E mint)
+#
+# The free tier sleeps after 15 minutes of inactivity. First request after
+# sleep takes ~30 s to wake. For non-trivial use, upgrade to the $7/mo
+# Starter plan which keeps the service warm.
+
+services:
+  - type: web
+    name: kartchain-server
+    runtime: docker
+    plan: free
+    region: oregon            # change to your nearest region
+    rootDir: .                # build context is the repo root
+    dockerfilePath: ./server/Dockerfile
+    healthCheckPath: /health
+    autoDeploy: true          # redeploy on push to main
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 2567
+      - key: SOLANA_CLUSTER
+        value: devnet
+      # Public RPC works for dev; for production set a Helius / Triton URL
+      - key: SOLANA_RPC_URL
+        value: https://api.devnet.solana.com
+      # Secrets — set these in the dashboard, NEVER commit them
+      - key: TREASURY_KEYPAIR_JSON
+        sync: false
+      - key: ESCROW_KEYPAIR_JSON
+        sync: false
+      - key: P2E_MINT_AUTHORITY_KEYPAIR_JSON
+        sync: false
+      - key: KART_NFT_AUTHORITY_KEYPAIR_JSON
+        sync: false
+      - key: ADMIN_TOKEN
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: P2E_TOKEN_MINT
+        sync: false

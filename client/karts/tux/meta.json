@@ -1,0 +1,17 @@
+{
+  "id": "tux",
+  "displayName": "Tux",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "1.00 0.00 0.00",
+  "author": "STK contributors",
+  "model": "tux.spm",
+  "icon": "tux_icon.png",
+  "minimap": "tux_icon.png",
+  "shadow": "tux_shadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

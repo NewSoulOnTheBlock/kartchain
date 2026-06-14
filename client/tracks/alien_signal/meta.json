@@ -1,0 +1,12 @@
+{
+  "id": "alien_signal",
+  "displayName": "Alien Signal",
+  "groups": "standard",
+  "arena": true,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Jean-Manuel Cl&#233;men&#231;on",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "alien_signal_track.spm",
+  "screenshot": "screenshot.jpg"
+}

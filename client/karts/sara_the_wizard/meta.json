@@ -1,0 +1,17 @@
+{
+  "id": "sara_the_wizard",
+  "displayName": "Sara",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "1.00 1.00 1.00",
+  "author": "STK contributors",
+  "model": "sara.spm",
+  "icon": "icon-sara.png",
+  "minimap": "icon-sara.png",
+  "shadow": "sara-shadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

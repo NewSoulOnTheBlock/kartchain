@@ -1,0 +1,12 @@
+{
+  "id": "lighthouse",
+  "displayName": "Around the Lighthouse",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "2012~2015 Jean-Manuel Clémençon",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "lighthouse_track.spm",
+  "screenshot": "screenshot.jpg"
+}

@@ -1,0 +1,17 @@
+{
+  "id": "emule",
+  "displayName": "Emule",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "1.00 0.00 0.00",
+  "author": "2021 ZAQraven <zaqraven99@protonmail.com>",
+  "model": "emule.spm",
+  "icon": "emule_icon128.png",
+  "minimap": "emule_icon32.png",
+  "shadow": "emule_shadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

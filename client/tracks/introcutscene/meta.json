@@ -1,0 +1,12 @@
+{
+  "id": "introcutscene",
+  "displayName": "IntroCutscene",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": true,
+  "designer": "mmg",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "introcutscene_track.spm",
+  "screenshot": null
+}

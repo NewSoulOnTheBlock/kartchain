@@ -1,0 +1,12 @@
+{
+  "id": "tutorial",
+  "displayName": "Tutorial",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Jean-Manuel Cl&#233;men&#231;on",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "tutorial_track.spm",
+  "screenshot": null
+}

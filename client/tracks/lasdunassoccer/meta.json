@@ -1,0 +1,12 @@
+{
+  "id": "lasdunassoccer",
+  "displayName": "Las Dunas Soccer Stadium",
+  "groups": "standard",
+  "arena": false,
+  "soccer": true,
+  "cutscene": false,
+  "designer": "Jean-Manuel Cl&#233;men&#231;on",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "lasdunassoccer_track.spm",
+  "screenshot": "screenshot.jpg"
+}

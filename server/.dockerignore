@@ -1,0 +1,12 @@
+node_modules
+*.json
+!package.json
+!tsconfig.json
+dist
+.env
+.env.*
+*.log
+README.md
+test
+scripts
+src/**/*.test.ts

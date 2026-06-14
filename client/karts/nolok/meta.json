@@ -1,0 +1,17 @@
+{
+  "id": "nolok",
+  "displayName": "Nolok",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "0.25 0.21 0.06",
+  "author": "2009 Tobias \"Tob\" \"cheleb\" Beyrer",
+  "model": "nolok.spm",
+  "icon": "nolokicon.png",
+  "minimap": "nolokicon.png",
+  "shadow": "nolokshadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

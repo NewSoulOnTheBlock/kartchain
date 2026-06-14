@@ -1,0 +1,9 @@
+# Pulled from upstream by ./fetch-stk-assets.ps1 — DO NOT commit.
+stk-assets-src/
+
+# Manually curated subset of upstream — usually too big to commit; consider
+# git-lfs if you want it tracked.
+curated/
+
+# Conversion artifacts; copy to ../client/karts and ../client/tracks instead.
+out/

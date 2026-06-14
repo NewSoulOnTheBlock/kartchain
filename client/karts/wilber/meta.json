@@ -1,0 +1,17 @@
+{
+  "id": "wilber",
+  "displayName": "Wilber",
+  "type": "light",
+  "groups": "standard",
+  "rgb": "1.00 0.42 0.00",
+  "author": "STK contributors",
+  "model": "wilber.spm",
+  "icon": "wilbericon.png",
+  "minimap": "wilbericon32.png",
+  "shadow": "wilber_shadow.png",
+  "stats": {
+    "topSpeed": 0.85,
+    "accel": 0.95,
+    "handling": 0.95
+  }
+}

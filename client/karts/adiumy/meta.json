@@ -1,0 +1,17 @@
+{
+  "id": "adiumy",
+  "displayName": "Adiumy",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "0.00 0.70 0.00",
+  "author": "STK contributors",
+  "model": "adiumy.spm",
+  "icon": "adiumyicon.png",
+  "minimap": "adiumyicon.png",
+  "shadow": "adiumyshadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

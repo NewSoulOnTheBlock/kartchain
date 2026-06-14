@@ -1,0 +1,709 @@
+{
+  "generatedAt": "2026-06-14T15:28:39.307Z",
+  "tracks": [
+    {
+      "id": "abyss",
+      "name": "Antediluvian Abyss",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/abyss/abyss_track.spm",
+      "sceneFile": "tracks/abyss/scene.xml",
+      "screenshot": "tracks/abyss/screenshot.jpg",
+      "metaJson": "tracks/abyss/meta.json"
+    },
+    {
+      "id": "alien_signal",
+      "name": "Alien Signal",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/alien_signal/alien_signal_track.spm",
+      "sceneFile": "tracks/alien_signal/scene.xml",
+      "screenshot": "tracks/alien_signal/screenshot.jpg",
+      "metaJson": "tracks/alien_signal/meta.json"
+    },
+    {
+      "id": "ancient_colosseum_labyrinth",
+      "name": "Ancient Colosseum Labyrinth",
+      "designer": "Typhon306",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/ancient_colosseum_labyrinth/ancient_colosseum_labyrinth_track.spm",
+      "sceneFile": "tracks/ancient_colosseum_labyrinth/scene.xml",
+      "screenshot": "tracks/ancient_colosseum_labyrinth/screenshot.jpg",
+      "metaJson": "tracks/ancient_colosseum_labyrinth/meta.json"
+    },
+    {
+      "id": "arena_candela_city",
+      "name": "Candela City",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on &amp; Benau",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/arena_candela_city/arena_candela_city_track.spm",
+      "sceneFile": "tracks/arena_candela_city/scene.xml",
+      "screenshot": "tracks/arena_candela_city/screenshot.jpg",
+      "metaJson": "tracks/arena_candela_city/meta.json"
+    },
+    {
+      "id": "battleisland",
+      "name": "Battle Island",
+      "designer": "2011 Iwan 'qubodup' Gabovitch",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/battleisland/battleisland_track.spm",
+      "sceneFile": "tracks/battleisland/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/battleisland/meta.json"
+    },
+    {
+      "id": "black_forest",
+      "name": "Black Forest",
+      "designer": "???? Keith333",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/black_forest/black_forest_track.spm",
+      "sceneFile": "tracks/black_forest/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/black_forest/meta.json"
+    },
+    {
+      "id": "candela_city",
+      "name": "Candela City",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/candela_city/candela_city_track.spm",
+      "sceneFile": "tracks/candela_city/scene.xml",
+      "screenshot": "tracks/candela_city/screenshot.jpg",
+      "metaJson": "tracks/candela_city/meta.json"
+    },
+    {
+      "id": "cave",
+      "name": "Cave X",
+      "designer": "2009 MacIO",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/cave/cave_track.spm",
+      "sceneFile": "tracks/cave/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/cave/meta.json"
+    },
+    {
+      "id": "cocoa_temple",
+      "name": "Cocoa Temple",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/cocoa_temple/cocoa_temple_track.spm",
+      "sceneFile": "tracks/cocoa_temple/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/cocoa_temple/meta.json"
+    },
+    {
+      "id": "cornfield_crossing",
+      "name": "Cornfield Crossing",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/cornfield_crossing/cornfield_crossing_track.spm",
+      "sceneFile": "tracks/cornfield_crossing/scene.xml",
+      "screenshot": "tracks/cornfield_crossing/screenshot.jpg",
+      "metaJson": "tracks/cornfield_crossing/meta.json"
+    },
+    {
+      "id": "endcutscene",
+      "name": "IntroCutscene",
+      "designer": "mmg",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": true,
+      "mainModel": "tracks/endcutscene/endcutscene_track.spm",
+      "sceneFile": "tracks/endcutscene/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/endcutscene/meta.json"
+    },
+    {
+      "id": "featunlocked",
+      "name": "featunlocked",
+      "designer": "mmg",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": true,
+      "mainModel": "tracks/featunlocked/featunlocked_track.spm",
+      "sceneFile": "tracks/featunlocked/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/featunlocked/meta.json"
+    },
+    {
+      "id": "fortmagma",
+      "name": "Fort Magma",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/fortmagma/fortmagma_track.spm",
+      "sceneFile": "tracks/fortmagma/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/fortmagma/meta.json"
+    },
+    {
+      "id": "gplose",
+      "name": "gplose",
+      "designer": "mmg",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": true,
+      "mainModel": "tracks/gplose/gplose_track.spm",
+      "sceneFile": "tracks/gplose/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/gplose/meta.json"
+    },
+    {
+      "id": "gpwin",
+      "name": "GPwin",
+      "designer": "2014 Jean-Manuel Clémençon",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": true,
+      "mainModel": "tracks/gpwin/gpwin_track.spm",
+      "sceneFile": "tracks/gpwin/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/gpwin/meta.json"
+    },
+    {
+      "id": "gran_paradiso_island",
+      "name": "Gran Paradiso Island",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/gran_paradiso_island/gran_paradiso_island_track.spm",
+      "sceneFile": "tracks/gran_paradiso_island/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/gran_paradiso_island/meta.json"
+    },
+    {
+      "id": "hacienda",
+      "name": "Hacienda",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/hacienda/hacienda_track.spm",
+      "sceneFile": "tracks/hacienda/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/hacienda/meta.json"
+    },
+    {
+      "id": "hole_drop",
+      "name": "Hole Drop",
+      "designer": "CrystalDaEevee &amp; Sven Andreas Belting",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": true,
+      "isCutscene": false,
+      "mainModel": "tracks/hole_drop/hole_drop_track.spm",
+      "sceneFile": "tracks/hole_drop/scene.xml",
+      "screenshot": "tracks/hole_drop/screenshot.jpg",
+      "metaJson": "tracks/hole_drop/meta.json"
+    },
+    {
+      "id": "icy_soccer_field",
+      "name": "Icy Soccer Field",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on &amp; Benau",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": true,
+      "isCutscene": false,
+      "mainModel": "tracks/icy_soccer_field/icy_soccer_field_track.spm",
+      "sceneFile": "tracks/icy_soccer_field/scene.xml",
+      "screenshot": "tracks/icy_soccer_field/screenshot.jpg",
+      "metaJson": "tracks/icy_soccer_field/meta.json"
+    },
+    {
+      "id": "introcutscene",
+      "name": "IntroCutscene",
+      "designer": "mmg",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": true,
+      "mainModel": "tracks/introcutscene/introcutscene_track.spm",
+      "sceneFile": "tracks/introcutscene/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/introcutscene/meta.json"
+    },
+    {
+      "id": "introcutscene2",
+      "name": "IntroCutscene2",
+      "designer": "mmg",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": true,
+      "mainModel": "tracks/introcutscene2/introcutscene2_track.spm",
+      "sceneFile": "tracks/introcutscene2/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/introcutscene2/meta.json"
+    },
+    {
+      "id": "lasdunasarena",
+      "name": "Las Dunas Arena",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/lasdunasarena/lasdunasarena_track.spm",
+      "sceneFile": "tracks/lasdunasarena/scene.xml",
+      "screenshot": "tracks/lasdunasarena/screenshot.jpg",
+      "metaJson": "tracks/lasdunasarena/meta.json"
+    },
+    {
+      "id": "lasdunassoccer",
+      "name": "Las Dunas Soccer Stadium",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": true,
+      "isCutscene": false,
+      "mainModel": "tracks/lasdunassoccer/lasdunassoccer_track.spm",
+      "sceneFile": "tracks/lasdunassoccer/scene.xml",
+      "screenshot": "tracks/lasdunassoccer/screenshot.jpg",
+      "metaJson": "tracks/lasdunassoccer/meta.json"
+    },
+    {
+      "id": "lighthouse",
+      "name": "Around the Lighthouse",
+      "designer": "2012~2015 Jean-Manuel Clémençon",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/lighthouse/lighthouse_track.spm",
+      "sceneFile": "tracks/lighthouse/scene.xml",
+      "screenshot": "tracks/lighthouse/screenshot.jpg",
+      "metaJson": "tracks/lighthouse/meta.json"
+    },
+    {
+      "id": "mines",
+      "name": "Old Mine",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on &amp; Ivar Ten Cate",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/mines/mines_track.spm",
+      "sceneFile": "tracks/mines/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/mines/meta.json"
+    },
+    {
+      "id": "minigolf",
+      "name": "Minigolf",
+      "designer": "Mac &amp; rubberduck",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/minigolf/minigolf_track.spm",
+      "sceneFile": "tracks/minigolf/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/minigolf/meta.json"
+    },
+    {
+      "id": "oasis",
+      "name": "Oasis",
+      "designer": "CrystalDaEevee",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": true,
+      "isCutscene": false,
+      "mainModel": "tracks/oasis/oasis_track.spm",
+      "sceneFile": "tracks/oasis/scene.xml",
+      "screenshot": "tracks/oasis/screenshot.jpg",
+      "metaJson": "tracks/oasis/meta.json"
+    },
+    {
+      "id": "olivermath",
+      "name": "Oliver's Math Class",
+      "designer": "2004 Steve and Oliver Baker",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/olivermath/olivermath_track.spm",
+      "sceneFile": "tracks/olivermath/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/olivermath/meta.json"
+    },
+    {
+      "id": "overworld",
+      "name": "Overworld",
+      "designer": "mmg",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/overworld/overworld_track.spm",
+      "sceneFile": "tracks/overworld/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/overworld/meta.json"
+    },
+    {
+      "id": "pumpkin_park",
+      "name": "Pumpkin Park",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/pumpkin_park/pumpkin_park_track.spm",
+      "sceneFile": "tracks/pumpkin_park/scene.xml",
+      "screenshot": "tracks/pumpkin_park/screenshot.jpg",
+      "metaJson": "tracks/pumpkin_park/meta.json"
+    },
+    {
+      "id": "ravenbridge_mansion",
+      "name": "Ravenbridge Mansion",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/ravenbridge_mansion/ravenbridge_mansion_track.spm",
+      "sceneFile": "tracks/ravenbridge_mansion/scene.xml",
+      "screenshot": "tracks/ravenbridge_mansion/screenshot.jpg",
+      "metaJson": "tracks/ravenbridge_mansion/meta.json"
+    },
+    {
+      "id": "sandtrack",
+      "name": "Shifting Sands",
+      "designer": "ctdabomb",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/sandtrack/sandtrack_track.spm",
+      "sceneFile": "tracks/sandtrack/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/sandtrack/meta.json"
+    },
+    {
+      "id": "scotland",
+      "name": "Nessie's Pond",
+      "designer": "Canis Lupus",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/scotland/scotland_track.spm",
+      "sceneFile": "tracks/scotland/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/scotland/meta.json"
+    },
+    {
+      "id": "snowmountain",
+      "name": "Northern Resort",
+      "designer": "Canis Lupus",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/snowmountain/snowmountain_track.spm",
+      "sceneFile": "tracks/snowmountain/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/snowmountain/meta.json"
+    },
+    {
+      "id": "snowtuxpeak",
+      "name": "Snow Peak",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on &amp; Ivar Ten Cate",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/snowtuxpeak/snowtuxpeak_track.spm",
+      "sceneFile": "tracks/snowtuxpeak/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/snowtuxpeak/meta.json"
+    },
+    {
+      "id": "soccer_field",
+      "name": "Soccer Field",
+      "designer": "2008 Thomas oppl",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": true,
+      "isCutscene": false,
+      "mainModel": "tracks/soccer_field/soccer_field_track.spm",
+      "sceneFile": "tracks/soccer_field/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/soccer_field/meta.json"
+    },
+    {
+      "id": "stadium",
+      "name": "The Stadium",
+      "designer": "2008 Thomas oppl",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/stadium/stadium_track.spm",
+      "sceneFile": "tracks/stadium/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/stadium/meta.json"
+    },
+    {
+      "id": "stk_enterprise",
+      "name": "STK Enterprise",
+      "designer": "rubberduck &amp; Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/stk_enterprise/stk_enterprise_track.spm",
+      "sceneFile": "tracks/stk_enterprise/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/stk_enterprise/meta.json"
+    },
+    {
+      "id": "temple",
+      "name": "Temple",
+      "designer": "Anon",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": true,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/temple/temple_track.spm",
+      "sceneFile": "tracks/temple/scene.xml",
+      "screenshot": "tracks/temple/screenshot.jpg",
+      "metaJson": "tracks/temple/meta.json"
+    },
+    {
+      "id": "tutorial",
+      "name": "Tutorial",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/tutorial/tutorial_track.spm",
+      "sceneFile": "tracks/tutorial/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/tutorial/meta.json"
+    },
+    {
+      "id": "volcano_island",
+      "name": "Volcan Island",
+      "designer": "Fabio Ponzi",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/volcano_island/volcano_island_track.spm",
+      "sceneFile": "tracks/volcano_island/scene.xml",
+      "screenshot": "tracks/volcano_island/screenshot.jpg",
+      "metaJson": "tracks/volcano_island/meta.json"
+    },
+    {
+      "id": "xr591",
+      "name": "XR591",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/xr591/xr591_track.spm",
+      "sceneFile": "tracks/xr591/scene.xml",
+      "screenshot": null,
+      "metaJson": "tracks/xr591/meta.json"
+    },
+    {
+      "id": "xr_soccer",
+      "name": "XR-4R3N4",
+      "designer": "CrystalDaEevee",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": true,
+      "isCutscene": false,
+      "mainModel": "tracks/xr_soccer/xr-4r3n4_track.spm",
+      "sceneFile": "tracks/xr_soccer/scene.xml",
+      "screenshot": "tracks/xr_soccer/screenshot.jpg",
+      "metaJson": "tracks/xr_soccer/meta.json"
+    },
+    {
+      "id": "zengarden",
+      "name": "Zen Garden",
+      "designer": "Jean-Manuel Cl&#233;men&#231;on",
+      "license": "CC-BY-SA 4.0",
+      "groups": [
+        "standard"
+      ],
+      "isArena": false,
+      "isSoccer": false,
+      "isCutscene": false,
+      "mainModel": "tracks/zengarden/zengarden_track.spm",
+      "sceneFile": "tracks/zengarden/scene.xml",
+      "screenshot": "tracks/zengarden/screenshot.jpg",
+      "metaJson": "tracks/zengarden/meta.json"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "xr_soccer",
+  "displayName": "XR-4R3N4",
+  "groups": "standard",
+  "arena": false,
+  "soccer": true,
+  "cutscene": false,
+  "designer": "CrystalDaEevee",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "xr-4r3n4_track.spm",
+  "screenshot": "screenshot.jpg"
+}

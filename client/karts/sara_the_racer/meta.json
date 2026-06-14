@@ -1,0 +1,17 @@
+{
+  "id": "sara_the_racer",
+  "displayName": "Pepper",
+  "type": "light",
+  "groups": "standard",
+  "rgb": "1.00 1.00 1.00",
+  "author": "STK contributors",
+  "model": "pepper.spm",
+  "icon": "icon-pepper.png",
+  "minimap": "icon-pepper.png",
+  "shadow": "Pepper_shadow.png",
+  "stats": {
+    "topSpeed": 0.85,
+    "accel": 0.95,
+    "handling": 0.95
+  }
+}

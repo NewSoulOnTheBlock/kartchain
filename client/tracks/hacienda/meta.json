@@ -1,0 +1,12 @@
+{
+  "id": "hacienda",
+  "displayName": "Hacienda",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Jean-Manuel Cl&#233;men&#231;on",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "hacienda_track.spm",
+  "screenshot": null
+}

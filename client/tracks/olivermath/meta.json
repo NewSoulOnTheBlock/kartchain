@@ -1,0 +1,12 @@
+{
+  "id": "olivermath",
+  "displayName": "Oliver's Math Class",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "2004 Steve and Oliver Baker",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "olivermath_track.spm",
+  "screenshot": null
+}

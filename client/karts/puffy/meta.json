@@ -1,0 +1,17 @@
+{
+  "id": "puffy",
+  "displayName": "Puffy",
+  "type": "heavy",
+  "groups": "standard",
+  "rgb": "0.00 0.53 0.02",
+  "author": "2009 MiniBjorn",
+  "model": "puffy.spm",
+  "icon": "puffy-icon.png",
+  "minimap": "puffy-icon.png",
+  "shadow": "puffy-shadow.png",
+  "stats": {
+    "topSpeed": 1,
+    "accel": 0.6,
+    "handling": 0.6
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "arena_candela_city",
+  "displayName": "Candela City",
+  "groups": "standard",
+  "arena": true,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Jean-Manuel Cl&#233;men&#231;on &amp; Benau",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "arena_candela_city_track.spm",
+  "screenshot": "screenshot.jpg"
+}

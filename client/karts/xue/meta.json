@@ -1,0 +1,17 @@
+{
+  "id": "xue",
+  "displayName": "Xue",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "0.03 0.40 1.00",
+  "author": "2018 Jean-Manuel Clémençon for SuperTuxKart team (3D objects and textures)",
+  "model": "xue.spm",
+  "icon": "xfce_icon64.png",
+  "minimap": "xfce_icon32.png",
+  "shadow": "shadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

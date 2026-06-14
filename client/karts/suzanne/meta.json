@@ -1,0 +1,17 @@
+{
+  "id": "suzanne",
+  "displayName": "Suzanne",
+  "type": "medium",
+  "groups": "standard",
+  "rgb": "0.91 0.55 0.07",
+  "author": "2011 Cédric \"Céa\" Archambault <https://plus.google.com/117805441573276168348>",
+  "model": "suzanne.spm",
+  "icon": "icon_large.png",
+  "minimap": "icon32.png",
+  "shadow": "shadow.png",
+  "stats": {
+    "topSpeed": 0.9,
+    "accel": 0.8,
+    "handling": 0.8
+  }
+}

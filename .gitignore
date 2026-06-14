@@ -1,0 +1,64 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-store/
+
+# Next.js
+.next/
+out/
+build/
+.vercel
+
+# Godot
+.godot/
+.import/
+*.translation
+export.cfg
+client/export/
+client/.tmp/
+
+# Rust / Anchor
+target/
+**/*.rs.bk
+.anchor/
+test-ledger/
+programs/Anchor.lock
+
+# Solana custodial keypairs — NEVER commit these
+server/treasury.json
+server/escrow.json
+server/p2e-mint.json
+server/nft-auth.json
+keypair*.json
+!*.example.json
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.example.json
+.idea/
+*.swp
+.DS_Store
+
+# Godot Web export outputs LIVE in git so Vercel can ship them (it doesn't
+# run Godot). Run `pnpm build:client` locally and commit the .wasm/.pck/etc.
+# Keep .gitkeep so the directory exists if you delete the build.
+!web/public/game/*.wasm
+!web/public/game/*.pck
+!web/public/game/*.js
+!web/public/game/*.html
+!web/public/game/*.png
+!web/public/game/.gitkeep
+
+# Local artifacts
+*.log
+*.tsbuildinfo
+dist/

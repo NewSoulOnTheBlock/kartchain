@@ -1,0 +1,12 @@
+{
+  "id": "snowmountain",
+  "displayName": "Northern Resort",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Canis Lupus",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "snowmountain_track.spm",
+  "screenshot": null
+}

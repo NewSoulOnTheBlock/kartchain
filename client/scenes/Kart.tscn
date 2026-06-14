@@ -1,0 +1,49 @@
+[gd_scene load_steps=3 format=3 uid="uid://kartchain_kart"]
+
+[ext_resource type="Script" path="res://scripts/Kart.gd" id="1_kart"]
+
+[sub_resource type="BoxShape3D" id="kart_shape"]
+size = Vector3(1.4, 0.7, 2.2)
+
+[sub_resource type="BoxMesh" id="kart_mesh"]
+size = Vector3(1.4, 0.7, 2.2)
+
+[node name="Kart" type="VehicleBody3D"]
+mass = 200.0
+script = ExtResource("1_kart")
+
+[node name="Collision" type="CollisionShape3D" parent="."]
+shape = SubResource("kart_shape")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+mesh = SubResource("kart_mesh")
+
+[node name="WheelFL" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, -0.3, -0.9)
+use_as_traction = true
+use_as_steering = true
+wheel_radius = 0.35
+suspension_stiffness = 30.0
+suspension_max_force = 6000.0
+
+[node name="WheelFR" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.3, -0.9)
+use_as_traction = true
+use_as_steering = true
+wheel_radius = 0.35
+suspension_stiffness = 30.0
+suspension_max_force = 6000.0
+
+[node name="WheelBL" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, -0.3, 0.9)
+use_as_traction = true
+wheel_radius = 0.35
+suspension_stiffness = 30.0
+suspension_max_force = 6000.0
+
+[node name="WheelBR" type="VehicleWheel3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, -0.3, 0.9)
+use_as_traction = true
+wheel_radius = 0.35
+suspension_stiffness = 30.0
+suspension_max_force = 6000.0

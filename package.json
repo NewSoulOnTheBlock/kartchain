@@ -1,0 +1,25 @@
+{
+  "name": "kartchain",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Web3 SuperTuxKart-inspired browser kart racer on Solana",
+  "license": "MIT",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev:server": "pnpm --filter @kartchain/server dev",
+    "dev:web": "pnpm --filter @kartchain/web dev",
+    "build:client": "cd client && godot --headless --export-release Web ../web/public/game/index.html",
+    "build:server": "pnpm --filter @kartchain/server build",
+    "build:web": "pnpm --filter @kartchain/web build",
+    "build": "pnpm build:server && pnpm build:web",
+    "keys:gen": "pnpm --filter @kartchain/server keys:gen",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

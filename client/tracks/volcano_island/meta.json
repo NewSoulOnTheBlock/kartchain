@@ -1,0 +1,12 @@
+{
+  "id": "volcano_island",
+  "displayName": "Volcan Island",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Fabio Ponzi",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "volcano_island_track.spm",
+  "screenshot": "screenshot.jpg"
+}

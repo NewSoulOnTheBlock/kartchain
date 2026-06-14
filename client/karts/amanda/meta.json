@@ -1,0 +1,17 @@
+{
+  "id": "amanda",
+  "displayName": "Amanda",
+  "type": "heavy",
+  "groups": "standard",
+  "rgb": "1.00 1.00 1.00",
+  "author": "2017 Jean-Manuel Clémençon <sam.un@protonmail.com>",
+  "model": "amanda.spm",
+  "icon": "amanda_icon.png",
+  "minimap": "amanda_icon.png",
+  "shadow": "amanda_shadow.png",
+  "stats": {
+    "topSpeed": 1,
+    "accel": 0.6,
+    "handling": 0.6
+  }
+}

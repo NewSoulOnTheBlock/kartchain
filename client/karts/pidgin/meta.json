@@ -1,0 +1,17 @@
+{
+  "id": "pidgin",
+  "displayName": "Pidgin",
+  "type": "heavy",
+  "groups": "standard",
+  "rgb": "0.42 0.25 0.46",
+  "author": "2017 Jean-Manuel \"samuncle\" Clémençon <sam.un@protonmail.com>",
+  "model": "pidgin.spm",
+  "icon": "pidginicon.png",
+  "minimap": "pidginicon.png",
+  "shadow": "pidginshadow.png",
+  "stats": {
+    "topSpeed": 1,
+    "accel": 0.6,
+    "handling": 0.6
+  }
+}

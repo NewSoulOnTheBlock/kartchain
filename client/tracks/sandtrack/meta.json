@@ -1,0 +1,12 @@
+{
+  "id": "sandtrack",
+  "displayName": "Shifting Sands",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "ctdabomb",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "sandtrack_track.spm",
+  "screenshot": null
+}

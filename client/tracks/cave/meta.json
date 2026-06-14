@@ -1,0 +1,12 @@
+{
+  "id": "cave",
+  "displayName": "Cave X",
+  "groups": "standard",
+  "arena": true,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "2009 MacIO",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "cave_track.spm",
+  "screenshot": null
+}

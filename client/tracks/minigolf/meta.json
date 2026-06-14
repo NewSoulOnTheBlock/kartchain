@@ -1,0 +1,12 @@
+{
+  "id": "minigolf",
+  "displayName": "Minigolf",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Mac &amp; rubberduck",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "minigolf_track.spm",
+  "screenshot": null
+}

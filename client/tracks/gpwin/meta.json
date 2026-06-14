@@ -1,0 +1,12 @@
+{
+  "id": "gpwin",
+  "displayName": "GPwin",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": true,
+  "designer": "2014 Jean-Manuel Clémençon",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "gpwin_track.spm",
+  "screenshot": null
+}

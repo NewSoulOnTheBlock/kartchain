@@ -1,0 +1,17 @@
+{
+  "id": "beastie",
+  "displayName": "Godette",
+  "type": "heavy",
+  "groups": "standard",
+  "rgb": "0.25 0.61 1.00",
+  "author": "STK contributors",
+  "model": "godette.spm",
+  "icon": "godette-icon.png",
+  "minimap": "godette-icon.png",
+  "shadow": "godette-shadow.png",
+  "stats": {
+    "topSpeed": 1,
+    "accel": 0.6,
+    "handling": 0.6
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "scotland",
+  "displayName": "Nessie's Pond",
+  "groups": "standard",
+  "arena": false,
+  "soccer": false,
+  "cutscene": false,
+  "designer": "Canis Lupus",
+  "license": "CC-BY-SA 4.0",
+  "mainModel": "scotland_track.spm",
+  "screenshot": null
+}
