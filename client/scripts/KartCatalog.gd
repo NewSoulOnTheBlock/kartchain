@@ -70,3 +70,12 @@ func track_model_path(track_id: String) -> String:
 				return ""
 			return "res://" + spm_rel.replace(".spm", ".glb")
 	return ""
+
+## Returns true when this track's scene.xml is present in the running
+## build. Used by the lobby UI to hide rows that the WASM bundle didn't
+## ship — otherwise players join a "racing" room and see only the
+## placeholder ground plane.
+func has_bundled_track(track_id: String) -> bool:
+	if track_id.is_empty():
+		return false
+	return ResourceLoader.exists("res://tracks/%s/scene.xml" % track_id)

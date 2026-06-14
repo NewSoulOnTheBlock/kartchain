@@ -20,6 +20,8 @@ var profile_pfp_index: int = 0   # index into KartCatalog.karts for icon
 # Lobby join args (consumed by KartSelect)
 var pending_race_id: String = ""
 var pending_entry_fee_lamports: int = 0
+# Target room size for quick-race matchmaking (2, 4, or 8). 0 = use server default.
+var pending_max_players: int = 0
 
 const PROFILE_KEY := "kartchain.profile"
 

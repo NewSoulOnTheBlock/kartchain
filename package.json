@@ -17,7 +17,9 @@
     "build": "pnpm build:server && pnpm build:web",
     "keys:gen": "pnpm --filter @kartchain/server keys:gen",
     "lint": "pnpm -r lint",
-    "test": "pnpm -r test"
+    "test": "pnpm -r test",
+    "test:client": "cd client && godot --headless --path . -s res://addons/gdUnit4/bin/GdUnitCmdTool.gd --run-tests --report-directory ./reports",
+    "test:client:setup": "cd client && git clone --depth 1 https://github.com/MikeSchulze/gdUnit4.git addons/gdUnit4"
   },
   "devDependencies": {
     "typescript": "^5.6.3"

@@ -75,6 +75,10 @@ func _on_wallet_event(args: Array) -> void:
 			var pk = String(evt.get("pubkey", ""))
 			GameState.set_wallet(pk)
 			emit_signal("wallet_connected", pk)
+		"wallet:karts":
+			var karts = evt.get("karts", [])
+			if karts is Array:
+				GameState.set_owned_karts(karts)
 		"wallet:error":
 			emit_signal("wallet_error", String(evt.get("message", "unknown")))
 
@@ -107,16 +111,9 @@ func refresh_owned_karts() -> void:
 	if bridge == null:
 		GameState.set_owned_karts([])
 		return
-	# Use JSON variant for the same reason as getWalletJson.
-	var promise = bridge.getOwnedKartsJson()
-	# The result of an async JS function is a Promise; we can't await it in
-	# GDScript directly. For MVP we just attempt synchronous read which works
-	# if the underlying fn returned a resolved value. Wire a callback later
-	# if you need to handle true asynchrony.
-	if promise == null:
-		GameState.set_owned_karts([])
-		return
-	var as_str = str(promise)
-	var parsed = JSON.parse_string(as_str)
-	if parsed is Array:
-		GameState.set_owned_karts(parsed)
+	# Fire-and-forget. JS bridge fetches asynchronously and pushes a
+	# `wallet:karts` event back through the existing wallet subscribe
+	# channel. _on_wallet_event delivers it into GameState.owned_karts.
+	# Older `getOwnedKartsJson()` returned an unresolved JS Promise to
+	# GDScript that we couldn't await — this is the working path.
+	bridge.refreshOwnedKarts()

@@ -126,8 +126,9 @@ func join_race(race_id: String) -> void:
 	# IMPORTANT: pass kartType as a SEPARATE arg, not inside a dict — Godot's
 	# GDScript→JavaScriptBridge dict conversion is unreliable across Godot
 	# versions and the JS side may see {} or undefined props.
-	print("[net] join_race id=%s kartType=%d" % [race_id, GameState.selected_kart_type])
-	_js_bridge.joinRaceWithKart(race_id, GameState.selected_kart_type)
+	var max_p: int = GameState.pending_max_players
+	print("[net] join_race id=%s kartType=%d maxPlayers=%d" % [race_id, GameState.selected_kart_type, max_p])
+	_js_bridge.joinRaceWithKart(race_id, GameState.selected_kart_type, max_p)
 
 func leave_room() -> void:
 	if _js_bridge:

@@ -19,6 +19,9 @@ build/
 export.cfg
 client/export/
 client/.tmp/
+# gdUnit4 addon — installed per-dev, see client/test/README.md
+client/addons/gdUnit4/
+client/reports/
 
 # Rust / Anchor
 target/

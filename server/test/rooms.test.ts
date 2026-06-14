@@ -34,16 +34,47 @@ describe("Kartchain rooms", () => {
   });
 
   it("race accepts a free lobby join and starts countdown after ready", async () => {
+    // maxPlayers: 1 → solo race, countdown should fire as soon as the only
+    // player marks themselves ready.
     const room = await colyseus.createRoom("race", {
       raceId: "free-rookie",
       entryFeeLamports: "0",
+      maxPlayers: 1,
     });
-    const client = await colyseus.connectTo(room, { raceId: "free-rookie", wallet: "" });
+    const client = await colyseus.connectTo(room, {
+      raceId: "free-rookie", wallet: "", maxPlayers: 1,
+    });
     expect(room.state.karts.size).toBe(1);
 
     await client.send("ready", {});
     await new Promise((r) => setTimeout(r, 100));
     expect(["countdown", "racing"]).toContain(room.state.phase);
+
+    await Promise.race([
+      client.leave().catch(() => undefined),
+      new Promise((r) => setTimeout(r, 500)),
+    ]);
+  });
+
+  it("race with maxPlayers > 1 stays waiting until room is full", async () => {
+    // 2-player room with only 1 ready player must NOT start (until either
+    // a second player joins or the auto-start window expires — 30s).
+    const room = await colyseus.createRoom("race", {
+      raceId: "quick-2p-test",
+      entryFeeLamports: "0",
+      maxPlayers: 2,
+    });
+    const client = await colyseus.connectTo(room, {
+      raceId: "quick-2p-test", wallet: "", maxPlayers: 2,
+    });
+    expect(room.state.karts.size).toBe(1);
+    expect(room.state.maxPlayers).toBe(2);
+    expect(room.state.waitingUntilMs).toBeGreaterThan(Date.now());
+
+    await client.send("ready", {});
+    await new Promise((r) => setTimeout(r, 150));
+    // Still waiting — only 1/2 players present.
+    expect(room.state.phase).toBe("waiting");
 
     await Promise.race([
       client.leave().catch(() => undefined),

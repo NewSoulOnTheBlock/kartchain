@@ -36,7 +36,14 @@ declare global {
 
 type WalletEvent =
   | { type: "wallet:changed"; pubkey: string }
-  | { type: "wallet:error";   message: string };
+  | { type: "wallet:error";   message: string }
+  /**
+   * Owned NFT karts, pushed asynchronously after a `refreshOwnedKarts()`
+   * call or whenever the connected wallet changes. The Godot SolanaBridge
+   * listens for this event because it can't `await` a JS Promise from
+   * GDScript.
+   */
+  | { type: "wallet:karts";   karts: any[] };
 
 type NetEvent =
   | { type: "lobby:state";    lobbies: any[] }
@@ -58,14 +65,22 @@ type KartchainApi = {
   getOwnedKarts: () => Promise<any[]>;
   /** JSON-string variant for the Godot/JS bridge. */
   getOwnedKartsJson: () => Promise<string>;
+  /**
+   * Async-friendly variant for Godot's JavaScriptBridge: kicks off the
+   * fetch and pushes a `wallet:karts` WalletEvent when results arrive.
+   * GDScript can't `await` a JS Promise, so we deliver via the existing
+   * subscribe channel that SolanaBridge.gd already listens to.
+   */
+  refreshOwnedKarts: () => void;
   /** Subscribers receive a JSON-stringified WalletEvent. */
   subscribe: (cb: (json: string) => void) => void;
   net: {
     joinLobby: () => Promise<void>;
-    joinRace: (raceId: string, opts?: { entryTxSignature?: string; kartType?: number; trackId?: string }) => Promise<void>;
+    joinRace: (raceId: string, opts?: { entryTxSignature?: string; kartType?: number; trackId?: string; maxPlayers?: number }) => Promise<void>;
     /** Variant called by Godot — kartType is a plain int arg to avoid
-     *  GDScript→JS dict conversion issues. */
-    joinRaceWithKart: (raceId: string, kartType: number) => Promise<void>;
+     *  GDScript→JS dict conversion issues. maxPlayers is also a plain int
+     *  (0 = use server default). */
+    joinRaceWithKart: (raceId: string, kartType: number, maxPlayers?: number) => Promise<void>;
     leaveRoom: () => Promise<void>;
     sendInput: (i: { seq: number; throttle: number; brake: number; steer: number; items: number }) => void;
     sendReady: () => void;
@@ -130,6 +145,20 @@ export function KartchainBridge() {
     const evt: WalletEvent = { type: "wallet:changed", pubkey };
     const json = JSON.stringify(evt);
     walletSubs.current.forEach((cb) => { try { cb(json); } catch (e) { console.error(e); } });
+
+    // Auto-refresh owned NFT karts on connect/disconnect so SolanaBridge
+    // doesn't need to poll. Empty pubkey → empty list.
+    if (!pubkey) {
+      const emptyJson = JSON.stringify({ type: "wallet:karts", karts: [] } as WalletEvent);
+      walletSubs.current.forEach((cb) => { try { cb(emptyJson); } catch (e) { console.error(e); } });
+      return;
+    }
+    fetchOwnedKarts(pubkey)
+      .then((karts) => {
+        const ke = JSON.stringify({ type: "wallet:karts", karts } as WalletEvent);
+        walletSubs.current.forEach((cb) => { try { cb(ke); } catch (e) { console.error(e); } });
+      })
+      .catch((err) => console.error("[kartchain] auto-refresh karts failed:", err));
   }, [wallet.publicKey]);
 
   return null;
@@ -263,6 +292,20 @@ function makeApi(deps: {
       return JSON.stringify(karts);
     },
 
+    refreshOwnedKarts() {
+      const pk = getWallet().publicKey;
+      if (!pk) {
+        emitWallet({ type: "wallet:karts", karts: [] });
+        return;
+      }
+      fetchOwnedKarts(pk.toBase58())
+        .then((karts) => emitWallet({ type: "wallet:karts", karts }))
+        .catch((err) => {
+          console.error("[kartchain] refreshOwnedKarts failed:", err);
+          emitWallet({ type: "wallet:karts", karts: [] });
+        });
+    },
+
     subscribe(cb) { walletSubs.current.push(cb); },
 
     net: {
@@ -326,6 +369,7 @@ function makeApi(deps: {
             raceId, wallet, kartType: opts?.kartType ?? 0,
             trackId: opts?.trackId,
             entryTxSignature: opts?.entryTxSignature,
+            maxPlayers: opts?.maxPlayers,
           });
           const joinDurMs = Date.now() - joinStartMs;
           raceRef.current = room;
@@ -356,6 +400,8 @@ function makeApi(deps: {
                 phase: state?.phase ?? "waiting",
                 trackId: state?.trackId ?? "",
                 totalLaps: state?.totalLaps ?? 3,
+                maxPlayers: state?.maxPlayers ?? 8,
+                waitingUntilMs: state?.waitingUntilMs ?? 0,
                 karts,
                 hasSpawnOverride: !!state?.hasSpawnOverride,
                 spawnX: state?.spawnOverrideX ?? 0,
@@ -364,7 +410,8 @@ function makeApi(deps: {
               },
             };
             console.log("[kartchain] race:state emit", payload.state.phase,
-              "trackId=", payload.state.trackId, "karts=", Object.keys(karts).length);
+              "trackId=", payload.state.trackId, "karts=", Object.keys(karts).length,
+              "max=", payload.state.maxPlayers);
             emitNet(payload);
           };
 
@@ -436,9 +483,9 @@ function makeApi(deps: {
 
       // Convenience wrapper called from Godot — kartType arrives as a plain
       // number, which avoids GDScript→JS dictionary conversion bugs.
-      async joinRaceWithKart(raceId: string, kartType: number) {
-        console.log("[kartchain] joinRaceWithKart raceId=%s kartType=%d", raceId, kartType);
-        await (window as any).kartchain.net.joinRace(raceId, { kartType });
+      async joinRaceWithKart(raceId: string, kartType: number, maxPlayers: number = 0) {
+        console.log("[kartchain] joinRaceWithKart raceId=%s kartType=%d maxPlayers=%d", raceId, kartType, maxPlayers);
+        await (window as any).kartchain.net.joinRace(raceId, { kartType, maxPlayers: maxPlayers > 0 ? maxPlayers : undefined });
         // After room is joined, broadcast our own session id so Godot can
         // identify which Kart in the state map is "us".
         const room = raceRef.current;

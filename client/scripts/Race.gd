@@ -18,12 +18,22 @@ var local_player_id: String = ""
 var _race_state_received: bool = false
 var _status_t: float = 0.0
 var _has_net_error: bool = false
+var _sent_ready: bool = false  # guard against duplicate sendReady (race_self + spawn)
+var _last_phase: String = "waiting"
+var _last_max_players: int = 1
+var _last_waiting_until_ms: float = 0.0
 
 var _track_node: Node3D = null
 var _loaded_track_id: String = ""
 
 # Camera modes
 var _free_cam_enabled: bool = false  # kart-follow by default; F1 toggles free-cam
+
+# Death-floor — if the local kart's Y drops below this it gets auto-recovered.
+# Sized "triple-deep" relative to the natural placeholder ground (~y=0) so
+# normal jumps and dips don't trigger it, but a free-fall off the edge of
+# the track does.
+const DEATH_FLOOR_Y: float = -30.0
 
 # Override of TrackLoader.spawn_offset, captured at runtime via FreeCam Y key.
 # Persisted in browser localStorage so it survives reloads.
@@ -45,11 +55,10 @@ func _ready() -> void:
 	status_overlay.visible = true
 	hud.show()
 
-	_apply_camera_mode()
 	# Cross-link FreeCam → this scene (for Y-key spawn capture)
 	if camera and "race_ref" in camera:
 		camera.race_ref = self
-	_show_debug_hint()
+	_show_debug_hint()  # also calls _apply_camera_mode internally
 
 func _on_net_error(code: String, message: String) -> void:
 	_has_net_error = true
@@ -64,7 +73,13 @@ func _on_race_self(session_id: String) -> void:
 		var k: VehicleBody3D = karts_by_id[session_id]
 		k.is_local = true
 		local_kart = k
-		NetworkClient.send_ready()
+		_send_ready_once()
+
+func _send_ready_once() -> void:
+	if _sent_ready:
+		return
+	_sent_ready = true
+	NetworkClient.send_ready()
 
 func _show_debug_hint() -> void:
 	var hint := Label.new()
@@ -159,19 +174,45 @@ func _snap_camera_behind_kart() -> void:
 	camera.look_at(local_kart.global_position + up * 0.5, Vector3.UP)
 
 func _process(_delta: float) -> void:
-	# Tick the connecting-status animation + auto-hide once the local kart spawns.
-	# When an error has been surfaced, leave that text alone — don't overwrite.
-	if status_overlay.visible and not _has_net_error:
-		_status_t += _delta
+	# Status overlay logic — surface what the race is doing right now:
+	#   - error state: stick with the error message
+	#   - not connected yet: "CONNECTING TO RACE..."
+	#   - connected but waiting for players: "WAITING FOR PLAYERS X/N — auto-start in Ys"
+	#   - countdown/racing: hide overlay, countdown label takes over
+	_status_t += _delta
+	if not _has_net_error:
 		var dots := int(_status_t * 2.0) % 4
+		var d := ".".repeat(dots)
 		if not _race_state_received:
-			status_overlay.text = "CONNECTING TO RACE" + ".".repeat(dots)
-		elif local_kart == null:
-			status_overlay.text = "JOINING LOBBY" + ".".repeat(dots)
+			status_overlay.text = "CONNECTING TO RACE" + d
+			status_overlay.visible = true
+		elif _last_phase == "waiting":
+			var here: int = karts_by_id.size()
+			var need: int = _last_max_players
+			var line1: String
+			if need > 1 and here < need:
+				line1 = "WAITING FOR PLAYERS — %d / %d%s" % [here, need, d]
+			else:
+				line1 = "ALL PLAYERS IN — PREPARING%s" % d
+			# Auto-start countdown line (in seconds remaining)
+			var sec_left: int = 0
+			if _last_waiting_until_ms > 0:
+				sec_left = max(0, int(round((_last_waiting_until_ms - _now_ms()) / 1000.0)))
+			if need > 1 and here < need and sec_left > 0:
+				status_overlay.text = "%s\nAuto-start in %ds" % [line1, sec_left]
+			else:
+				status_overlay.text = line1
+			status_overlay.visible = true
 		else:
+			# countdown / racing / finished — hide the overlay
 			status_overlay.visible = false
 	if camera and camera.has_method("enable"):
 		camera.local_kart_ref = local_kart
+	# Death-floor safety net — if the local kart has fallen way below the
+	# track, recover them instead of letting them plummet forever.
+	if local_kart and is_instance_valid(local_kart) and local_kart.global_position.y < DEATH_FLOOR_Y:
+		if local_kart.has_method("recover"):
+			local_kart.recover()
 	# Kart-follow chase cam — sits 6 units behind, 3 above, looking at the kart.
 	if not _free_cam_enabled and local_kart and is_instance_valid(local_kart):
 		var back = local_kart.global_transform.basis.z   # Godot: +Z is back
@@ -180,10 +221,14 @@ func _process(_delta: float) -> void:
 		camera.global_position = camera.global_position.lerp(target, 0.25)
 		camera.look_at(local_kart.global_position + Vector3(0, 0.8, 0), Vector3.UP)
 
+func _now_ms() -> float:
+	return float(Time.get_unix_time_from_system() * 1000.0)
+
 func _on_race_state(state: Dictionary) -> void:
 	_race_state_received = true
-	if status_overlay and status_overlay.visible and local_kart != null:
-		status_overlay.visible = false
+	_last_phase = String(state.get("phase", "waiting"))
+	_last_max_players = max(1, int(state.get("maxPlayers", 1)))
+	_last_waiting_until_ms = float(state.get("waitingUntilMs", 0.0))
 	var track_id := String(state.get("trackId", ""))
 	if track_id != "" and track_id != _loaded_track_id:
 		var ok := _load_track(track_id)
@@ -262,7 +307,7 @@ func _spawn_kart(pid: String, k_data: Dictionary) -> VehicleBody3D:
 		# Auto-ready so single-player practice starts the race immediately.
 		# (LobbyRoom's countdown begins as soon as every player in the room
 		# is ready.) Multi-player races still wait for everyone.
-		NetworkClient.send_ready()
+		_send_ready_once()
 	var stats := _stats_for_kart(int(k_data.get("kartType", 0)))
 	node.apply_stats(stats["top_speed"], stats["accel"], stats["handling"])
 	var model_path := KartCatalog.kart_model_path(int(k_data.get("kartType", 0)))

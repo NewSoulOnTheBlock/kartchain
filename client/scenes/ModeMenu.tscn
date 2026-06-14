@@ -67,11 +67,37 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 28
 text = "GRAND PRIX"
 
-[node name="QuickRace" type="Button" parent="Margin/VBox/Modes"]
+[node name="QuickRaceHeader" type="Label" parent="Margin/VBox/Modes"]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+modulate = Color(1, 0.95, 0.45, 1)
+text = "QUICK RACE — PICK ROOM SIZE"
+
+[node name="QuickRow" type="HBoxContainer" parent="Margin/VBox/Modes"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="Quick2P" type="Button" parent="Margin/VBox/Modes/QuickRow"]
 custom_minimum_size = Vector2(0, 72)
+size_flags_horizontal = 3
 layout_mode = 2
 theme_override_font_sizes/font_size = 28
-text = "QUICK RACE"
+text = "1v1  (2P)"
+
+[node name="Quick4P" type="Button" parent="Margin/VBox/Modes/QuickRow"]
+custom_minimum_size = Vector2(0, 72)
+size_flags_horizontal = 3
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "1v3  (4P)"
+
+[node name="Quick8P" type="Button" parent="Margin/VBox/Modes/QuickRow"]
+custom_minimum_size = Vector2(0, 72)
+size_flags_horizontal = 3
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "1v7  (8P)"
 
 [node name="Footer" type="HBoxContainer" parent="Margin/VBox"]
 layout_mode = 2

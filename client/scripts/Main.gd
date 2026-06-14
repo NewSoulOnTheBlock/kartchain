@@ -6,7 +6,8 @@ extends Control
 @onready var lobby_list: ItemList = $Margin/VBox/LobbyList
 @onready var join_button: Button = $Margin/VBox/JoinButton
 
-var _lobbies: Array = []
+var _lobbies: Array = []  # Filtered: only bundled tracks
+var _bridge_is_ready: bool = false
 
 func _ready() -> void:
 	MusicPlayer.stop()
@@ -14,6 +15,7 @@ func _ready() -> void:
 	SolanaBridge.wallet_error.connect(func(m): status_label.text = "Wallet error: " + m)
 	GameState.wallet_changed.connect(_on_wallet_changed)
 	NetworkClient.lobby_state.connect(_on_lobby_state)
+	NetworkClient.bridge_ready.connect(_on_bridge_ready)
 
 	connect_button.pressed.connect(_on_connect_pressed)
 	join_button.pressed.connect(_on_join_pressed)
@@ -21,6 +23,12 @@ func _ready() -> void:
 	# Auto-join the lobby room on launch so we see open races
 	NetworkClient.join_lobby()
 	_refresh_wallet_ui(GameState.wallet_pubkey)
+
+func _on_bridge_ready() -> void:
+	_bridge_is_ready = true
+	# Don't clobber a wallet-status message if one is already showing.
+	if status_label.text == "" or status_label.text == "Not connected":
+		_refresh_wallet_ui(GameState.wallet_pubkey)
 
 func _on_connect_pressed() -> void:
 	SolanaBridge.connect_wallet()
@@ -41,9 +49,19 @@ func _refresh_wallet_ui(pubkey: String) -> void:
 		connect_button.text = "Disconnect"
 
 func _on_lobby_state(lobbies: Array) -> void:
-	_lobbies = lobbies
-	lobby_list.clear()
+	# Filter out races for tracks the WASM bundle didn't ship — without
+	# this, players join a lobby and end up "racing" on the placeholder
+	# ground plane because TrackLoader can't find scene.xml.
+	_lobbies.clear()
+	var hidden := 0
 	for l in lobbies:
+		var track_id := String(l.get("trackId", ""))
+		if KartCatalog.has_bundled_track(track_id):
+			_lobbies.append(l)
+		else:
+			hidden += 1
+	lobby_list.clear()
+	for l in _lobbies:
 		var track_name = String(l.get("trackName", l.get("trackId", "?")))
 		var fee_sol := float(l.get("entryFeeLamports", 0)) / 1_000_000_000.0
 		var fee_str := "FREE" if fee_sol == 0.0 else "%.3f SOL" % fee_sol
@@ -54,6 +72,8 @@ func _on_lobby_state(lobbies: Array) -> void:
 			fee_str,
 		]
 		lobby_list.add_item(entry)
+	if hidden > 0 and status_label.text.find("Wallet") == -1:
+		status_label.text = "%d race(s) hidden — track not bundled in this build" % hidden
 
 func _on_join_pressed() -> void:
 	var sel := lobby_list.get_selected_items()

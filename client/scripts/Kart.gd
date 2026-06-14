@@ -7,6 +7,20 @@ extends VehicleBody3D
 ##
 ## At spawn time, Race.gd may call set_kart_model(path) to swap the
 ## placeholder BoxMesh with a real STK glb (e.g. res://karts/tux/tux.glb).
+##
+## ─── Orientation convention ───────────────────────────────────────────
+## STK kart .glb files (converted from .spm via convert_spm.py) export with
+## their visual nose along Godot's **+Z** axis — NOT the standard Godot
+## forward (-Z). All three of these pieces compensate so the player still
+## feels W = "drive toward the visible nose":
+##   1. `engine_force = -drive * max` in _apply_drive (negation).
+##   2. `_extract_yaw` adds PI so recover() keeps the visual nose pointing
+##      where the camera was facing, not 180° from it.
+##   3. Race.gd's chase camera sits at `local_kart.basis.z * 6` (which is
+##      Godot's "rear" but, with the +Z-nose convention, is BEHIND the
+##      visual back of the kart — exactly what the player wants).
+## If you ever fix the asset import to export nose along -Z, you must
+## update all three sites simultaneously.
 
 @export var is_local: bool = false
 @export var player_id: String = ""
@@ -47,6 +61,10 @@ func apply_stats(top_speed_pct: float, accel_pct: float, handling_pct: float) ->
 
 ## Replace the placeholder BoxMesh body with a real STK kart glb.
 ## path is a res:// URI like "res://karts/tux/tux.glb".
+##
+## After loading, resizes the kart's BoxShape3D collision shape to the
+## model's AABB so tiny karts (hexley) and tall karts (sara_the_wizard)
+## don't share the same hitbox.
 func set_kart_model(path: String) -> void:
 	if path.is_empty():
 		return
@@ -65,8 +83,53 @@ func set_kart_model(path: String) -> void:
 	_stk_model = scene.instantiate()
 	add_child(_stk_model)
 	_stk_model.position.y = -0.35
-	# STK kart models are exported with their nose pointing in Godot's
-	# forward direction (-Z) — no rotation needed.
+	# See Orientation convention header. STK glbs are nose-along-+Z; the
+	# rest of the kart code compensates so we don't rotate the model here.
+	_fit_collision_to_model()
+
+## Sums every MeshInstance3D AABB under the loaded STK model and resizes
+## our BoxShape3D collision to match (clamped to sane bounds so wonky
+## STK models don't produce a 10m hitbox). Cheap — runs once at spawn.
+func _fit_collision_to_model() -> void:
+	if _stk_model == null or not is_instance_valid(_stk_model):
+		return
+	var collision := get_node_or_null("Collision") as CollisionShape3D
+	if collision == null or not (collision.shape is BoxShape3D):
+		return
+	var aabb := _aggregate_aabb(_stk_model)
+	if aabb.size == Vector3.ZERO:
+		return
+	# Clamp each axis: min 0.8m so tiny karts still have body, max 3.0m so
+	# any rogue authoring (e.g. an STK kart whose mesh includes a flag pole)
+	# doesn't give it a tank-sized hitbox.
+	var size := Vector3(
+		clamp(aabb.size.x, 0.8, 3.0),
+		clamp(aabb.size.y, 0.5, 2.0),
+		clamp(aabb.size.z, 1.2, 3.0),
+	)
+	(collision.shape as BoxShape3D).size = size
+
+func _aggregate_aabb(node: Node) -> AABB:
+	var out := AABB()
+	var seeded := false
+	for child in _collect_mesh_instances(node):
+		var ab: AABB = child.global_transform * child.get_aabb()
+		# Translate into the kart's local space so the box is centered correctly.
+		ab.position -= global_position
+		if not seeded:
+			out = ab
+			seeded = true
+		else:
+			out = out.merge(ab)
+	return out
+
+func _collect_mesh_instances(node: Node) -> Array:
+	var out: Array = []
+	if node is MeshInstance3D and (node as MeshInstance3D).mesh != null:
+		out.append(node)
+	for child in node.get_children():
+		out.append_array(_collect_mesh_instances(child))
+	return out
 
 func _physics_process(delta: float) -> void:
 	if is_local:
@@ -143,11 +206,32 @@ func _check_auto_recover(delta: float) -> void:
 		_tilted_for = max(0.0, _tilted_for - delta * 2.0)
 
 var _input_send_accumulator: float = 0.0
+# Last sent throttle/brake/steer so we can skip identical packets.
+# Always send at least every KEEPALIVE seconds so the server knows we're
+# alive and stops moving the kart if we let go of the keys.
+const _KEEPALIVE_SEC: float = 0.25
+var _last_sent_throttle: float = INF
+var _last_sent_brake: float = INF
+var _last_sent_steer: float = INF
+var _last_send_t: float = 0.0
 func _send_input_if_due() -> void:
 	_input_send_accumulator += get_physics_process_delta_time()
-	if _input_send_accumulator >= 1.0 / 30.0:
-		_input_send_accumulator = 0.0
-		NetworkClient.send_input(_input_throttle, _input_brake, _input_steer, 0)
+	if _input_send_accumulator < 1.0 / 30.0:
+		return
+	_input_send_accumulator = 0.0
+	_last_send_t += 1.0 / 30.0
+	var unchanged: bool = (
+		is_equal_approx(_input_throttle, _last_sent_throttle)
+		and is_equal_approx(_input_brake, _last_sent_brake)
+		and is_equal_approx(_input_steer, _last_sent_steer)
+	)
+	if unchanged and _last_send_t < _KEEPALIVE_SEC:
+		return
+	_last_sent_throttle = _input_throttle
+	_last_sent_brake = _input_brake
+	_last_sent_steer = _input_steer
+	_last_send_t = 0.0
+	NetworkClient.send_input(_input_throttle, _input_brake, _input_steer, 0)
 
 func _interpolate_to_target(delta: float) -> void:
 	global_position = global_position.lerp(_net_target_pos, clamp(_net_lerp_speed * delta, 0.0, 1.0))

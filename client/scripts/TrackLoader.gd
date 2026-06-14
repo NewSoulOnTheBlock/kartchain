@@ -39,21 +39,12 @@ func grid_slot(n: int) -> Vector3:
 ## standing on the track) so they get no lift.
 const GROUND_LIFT := 0.6
 
-## Suggested spawn offset for a given STK track. Servers position karts at
-## a flat grid around (0, 0.5, 0); we add this offset before placing them so
-## they land near the start line. Used ONLY when nobody in the room has
-## pressed Y yet. Smaller Y now — we don't want them to fall.
-func spawn_offset(track_id: String) -> Vector3:
-	match track_id:
-		"lighthouse":      return Vector3(  0, 2, 0)
-		"cocoa_temple":    return Vector3(  0, 2, 0)
-		"volcano_island":  return Vector3(  0, 2, 0)
-		"black_forest":    return Vector3(  0, 2, 0)
-		"cornfield_crossing": return Vector3(0, 2, 0)
-		"snowtuxpeak":     return Vector3(  0, 2, 0)
-		"oasis":           return Vector3(  0, 2, 0)
-		"pumpkin_park":    return Vector3(  0, 2, 0)
-		_:                 return Vector3(  0, 2, 0)
+## Suggested spawn offset used ONLY when nobody in the room has pressed
+## Y yet. STK tracks are all centered around y=0 in the GLB; a 2m lift
+## prevents wheel-mesh interpenetration with the track surface at spawn.
+## Override per-track here if a specific STK track has a high start line.
+func spawn_offset(_track_id: String) -> Vector3:
+	return Vector3(0, 2, 0)
 
 func load_track(track_id: String) -> Node3D:
 	var base := "res://tracks/%s/" % track_id
@@ -168,6 +159,14 @@ func _place_one_static(p: XMLParser, base_path: String,
 	var hpr := _parse_vec3(p.get_named_attribute_value_safe("hpr"), Vector3.ZERO)
 	var scl := _parse_vec3(p.get_named_attribute_value_safe("scale"), Vector3.ONE)
 
+	# STK's interaction attribute drives whether this object participates
+	# in physics. "ghost" = visual only (grass, decals, banners, lamps);
+	# absent or anything else (e.g. "static", "physics-only") = collidable.
+	# Skipping ghost objects cuts a huge amount of trimesh build cost and
+	# stops karts from snagging on decorative props.
+	var interaction := p.get_named_attribute_value_safe("interaction")
+	var make_collision: bool = interaction != "ghost"
+
 	var model_name := ""
 	if p.get_named_attribute_value_safe("lod_instance") == "true":
 		var grp := p.get_named_attribute_value_safe("lod_group")
@@ -178,16 +177,19 @@ func _place_one_static(p: XMLParser, base_path: String,
 
 	if model_name == "":
 		return 0
-	if _instantiate_model(base_path, model_name, xyz, hpr, scl, parent, ""):
+	if _instantiate_model(base_path, model_name, xyz, hpr, scl, parent, "", make_collision):
 		return 1
 	return 0
 
 # Loads <base_path><model_name>.glb (converted from .spm) and adds it as a
 # child of parent, placed at xyz/hpr/scale. Returns true on success.
+# `make_collision` controls whether trimesh collision is generated; pass
+# false for STK objects marked interaction="ghost" so decorative props
+# don't bloat physics or snag karts.
 var _model_cache: Dictionary = {}    # glb_path -> PackedScene
 func _instantiate_model(base_path: String, model_name: String,
 		xyz: Vector3, hpr: Vector3, scl: Vector3,
-		parent: Node3D, override_name: String) -> bool:
+		parent: Node3D, override_name: String, make_collision: bool = true) -> bool:
 	var stem := model_name.get_basename()
 	var glb_path := base_path + stem + ".glb"
 	var scene: PackedScene = _model_cache.get(glb_path, null)
@@ -216,7 +218,9 @@ func _instantiate_model(base_path: String, model_name: String,
 	parent.add_child(node3d)
 	# Generate trimesh collision so karts can drive on every mesh.
 	# Without this, the karts fall through and land on the safety floor.
-	_add_trimesh_collision_recursive(node3d)
+	# Skipped for ghost objects (decorative props).
+	if make_collision:
+		_add_trimesh_collision_recursive(node3d)
 	return true
 
 # Walks a glTF instance, calling create_trimesh_collision() on each

@@ -9,12 +9,16 @@ import { loadTrackCatalog } from "../content/catalog.js";
 const TICK_RATE_HZ = 30;
 const TICK_MS = 1000 / TICK_RATE_HZ;
 const COUNTDOWN_SECONDS = 3;
+// Quick-race matchmaking: if a room hasn't filled within this window after
+// the FIRST player joined, auto-start with whoever is present.
+const AUTO_START_AFTER_MS = 30_000;
 
 type JoinOpts = {
   raceId: string;
   wallet?: string;
   kartType?: number;
   entryTxSignature?: string; // required for paid lobbies
+  maxPlayers?: number;       // 2 / 4 / 8 for quick-race matchmaking
 };
 
 /**
@@ -35,22 +39,29 @@ export class RaceRoom extends Room<RaceState> {
   // Track which raceId this room belongs to (used by lobby polling)
   raceId = "";
 
-  async onCreate(options: { raceId: string; entryFeeLamports?: string | number; trackId?: string }) {
+  async onCreate(options: { raceId: string; entryFeeLamports?: string | number; trackId?: string; maxPlayers?: number }) {
     try {
       this.raceId = options?.raceId ?? "ad-hoc";
+      // Clamp maxPlayers into a sane range. Default 8 (the previous behaviour);
+      // quick-race menu passes 2/4/8 explicitly.
+      const desired = Number(options?.maxPlayers ?? 8);
+      const clamped = Number.isFinite(desired)
+        ? Math.max(1, Math.min(8, Math.floor(desired)))
+        : 8;
+      this.maxClients = clamped;
       const state = new RaceState();
       // Prefer explicit option, else derive from lobby seeding (matching the
       // raceId convention: "free-<trackId>" or "wager-..." with fixed mapping).
       state.trackId = options?.trackId ?? this._deriveTrackId(this.raceId);
-      state.maxPlayers = this.maxClients;
+      state.maxPlayers = clamped;
       state.entryFeeLamports = Number(options?.entryFeeLamports ?? 0);
       state.racePda = "";
       this.setState(state);
 
-      this.setMetadata({ raceId: this.raceId, phase: "waiting" }).catch((err) => {
+      this.setMetadata({ raceId: this.raceId, phase: "waiting", maxPlayers: clamped }).catch((err) => {
         console.warn(`[race:${this.raceId}] setMetadata failed:`, err);
       });
-      console.log(`[race:${this.raceId}] room CREATED trackId=${state.trackId} fee=${state.entryFeeLamports}`);
+      console.log(`[race:${this.raceId}] room CREATED trackId=${state.trackId} fee=${state.entryFeeLamports} maxPlayers=${clamped}`);
 
       this.onMessage("input", (client, payload: { seq: number; throttle: number; brake: number; steer: number; items?: number }) => {
         try {
@@ -154,7 +165,21 @@ export class RaceRoom extends Room<RaceState> {
       k.yaw = 0;
       this.state.karts.set(client.sessionId, k);
       this._inputs.set(client.sessionId, { throttle: 0, brake: 0, steer: 0, useItem: false });
-      console.log(`[race:${this.raceId}] onJoin OK sessionId=${client.sessionId} wallet=${k.wallet.slice(0,8) || "(none)"} kartType=${k.kartType} kartsAfter=${this.state.karts.size}`);
+      console.log(`[race:${this.raceId}] onJoin OK sessionId=${client.sessionId} wallet=${k.wallet.slice(0,8) || "(none)"} kartType=${k.kartType} kartsAfter=${this.state.karts.size}/${this.maxClients}`);
+
+      // First player to arrive starts the matchmaking wait window.
+      // Solo (maxClients=1) skips the wait entirely.
+      if (this.state.karts.size === 1 && this.maxClients > 1 && this.state.waitingUntilMs === 0) {
+        this.state.waitingUntilMs = Date.now() + AUTO_START_AFTER_MS;
+        console.log(`[race:${this.raceId}] wait window started — auto-start in ${AUTO_START_AFTER_MS / 1000}s`);
+        // Schedule the auto-start fallback (cancelled below if everyone is
+        // ready earlier).
+        this.clock.setTimeout(() => this._tryAutoStart(), AUTO_START_AFTER_MS);
+      }
+      // Full room: try to start immediately (still gated by everyone being ready).
+      if (this.state.karts.size >= this.maxClients) {
+        this._maybeStartCountdown();
+      }
     } catch (err) {
       console.error(`[race:${this.raceId}] onJoin FAILED sessionId=${client.sessionId}:`, err);
       throw err;
@@ -177,11 +202,37 @@ export class RaceRoom extends Room<RaceState> {
   private _maybeStartCountdown() {
     if (this.state.phase !== "waiting") return;
     if (this.state.karts.size < 1) return; // dev: allow solo
+    // Quick-race gate: wait for room to be FULL (server set maxClients from
+    // client opts: 2 / 4 / 8). Solo rooms (maxClients = 1) skip this.
+    if (this.maxClients > 1 && this.state.karts.size < this.maxClients) return;
     let allReady = true;
     this.state.karts.forEach((k) => { if (!k.ready) allReady = false; });
     if (!allReady) return;
+    this._startCountdown();
+  }
+
+  /**
+   * Called by the AUTO_START_AFTER_MS clock when the wait window expires.
+   * Starts the race with however many players are present (provided they
+   * are all marked ready).
+   */
+  private _tryAutoStart() {
+    if (this.state.phase !== "waiting") return;
+    if (this.state.karts.size < 1) return;
+    let allReady = true;
+    this.state.karts.forEach((k) => { if (!k.ready) allReady = false; });
+    if (!allReady) {
+      console.log(`[race:${this.raceId}] auto-start fired but ${this._readyCount()}/${this.state.karts.size} ready — waiting`);
+      return;
+    }
+    console.log(`[race:${this.raceId}] auto-start: room not full (${this.state.karts.size}/${this.maxClients}) but window expired`);
+    this._startCountdown();
+  }
+
+  private _startCountdown() {
     this.state.phase = "countdown";
-    this.setMetadata({ raceId: this.raceId, phase: "countdown" }).catch(() => undefined);
+    this.state.waitingUntilMs = 0;
+    this.setMetadata({ raceId: this.raceId, phase: "countdown", maxPlayers: this.maxClients }).catch(() => undefined);
     let s = COUNTDOWN_SECONDS;
     this.broadcast("countdown", { seconds: s });
     const tick = () => {
@@ -190,7 +241,7 @@ export class RaceRoom extends Room<RaceState> {
       if (s <= 0) {
         this.state.phase = "racing";
         this.state.startTimestamp = Date.now();
-        this.setMetadata({ raceId: this.raceId, phase: "racing" }).catch(() => undefined);
+        this.setMetadata({ raceId: this.raceId, phase: "racing", maxPlayers: this.maxClients }).catch(() => undefined);
       } else {
         this.clock.setTimeout(tick, 1000);
       }

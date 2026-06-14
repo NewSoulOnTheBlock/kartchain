@@ -45,4 +45,11 @@ export class RaceState extends Schema {
   @type("number")  spawnOverrideX = 0;
   @type("number")  spawnOverrideY = 0;
   @type("number")  spawnOverrideZ = 0;
+  /**
+   * Auto-start timer for quick-race matchmaking. Server sets this when the
+   * first player joins; if the room hasn't filled by then we start anyway
+   * with whoever's present. 0 = no auto-start scheduled (single-player or
+   * an already-running race). Stored as ms-since-epoch.
+   */
+  @type("number") waitingUntilMs = 0;
 }
