@@ -1,0 +1,21 @@
+node_modules
+.next
+.git
+.github
+.vercel
+.godot
+client
+web/node_modules
+web/.next
+web/public/game
+assets-import
+docs
+*.log
+*.md
+.env
+.env.*
+# Keep these — we want the server source + workspace files
+!server
+!package.json
+!pnpm-workspace.yaml
+!pnpm-lock.yaml
