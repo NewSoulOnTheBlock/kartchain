@@ -224,7 +224,13 @@ func _on_race_state(state: Dictionary) -> void:
 		var grid := TrackLoader.grid_slot(i)
 		# Slight upward lift so wheels aren't intersecting the ground
 		var spawn_world: Vector3 = anchor + grid + Vector3(0, TrackLoader.GROUND_LIFT, 0)
+		# Snap to whatever ground is actually under the spawn point (placeholder
+		# plane OR loaded STK track mesh — both have collision). Prevents karts
+		# spawning 2+ m in the air and free-falling onto the track.
 		if node == null:
+			var ground_y := _ground_y_at(spawn_world)
+			if ground_y > -999.0:
+				spawn_world.y = ground_y + TrackLoader.GROUND_LIFT
 			node = _spawn_kart(pid, k_data)
 			node.linear_velocity = Vector3.ZERO
 			node.angular_velocity = Vector3.ZERO
@@ -257,12 +263,30 @@ func _spawn_kart(pid: String, k_data: Dictionary) -> VehicleBody3D:
 		# (LobbyRoom's countdown begins as soon as every player in the room
 		# is ready.) Multi-player races still wait for everyone.
 		NetworkClient.send_ready()
-	var stats := _stats_for_kart(int(k_data.get("kartType", 0)))
-	node.apply_stats(stats["top_speed"], stats["accel"], stats["handling"])
+	var stats := _stats_for_kart(int(k_data.get("kartType", 0)))	node.apply_stats(stats["top_speed"], stats["accel"], stats["handling"])
 	var model_path := KartCatalog.kart_model_path(int(k_data.get("kartType", 0)))
 	if not model_path.is_empty():
 		node.set_kart_model(model_path)
 	return node
+
+## Returns the world Y of the first solid surface directly below `world_pos`.
+## Used to snap spawning karts onto whatever ground is actually under them
+## (placeholder plane OR a loaded STK track mesh — both have collision).
+## Returns -1000.0 if no surface was found within the search range so the
+## caller can fall back to the spawn anchor.
+func _ground_y_at(world_pos: Vector3) -> float:
+	var space := get_world_3d().direct_space_state
+	if space == null:
+		return -1000.0
+	var from := Vector3(world_pos.x, world_pos.y + 200.0, world_pos.z)
+	var to   := Vector3(world_pos.x, world_pos.y - 500.0, world_pos.z)
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+	var hit: Dictionary = space.intersect_ray(query)
+	if hit.has("position"):
+		return float(hit.position.y)
+	return -1000.0
 
 # Load and add the STK track scene. Hides the placeholder ground/sky on success.
 # Returns true on success so the caller can retry on failure.
