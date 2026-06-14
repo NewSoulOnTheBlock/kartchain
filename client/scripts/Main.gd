@@ -9,6 +9,7 @@ extends Control
 var _lobbies: Array = []
 
 func _ready() -> void:
+	MusicPlayer.stop()
 	SolanaBridge.wallet_connected.connect(_on_wallet_connected)
 	SolanaBridge.wallet_error.connect(func(m): status_label.text = "Wallet error: " + m)
 	GameState.wallet_changed.connect(_on_wallet_changed)

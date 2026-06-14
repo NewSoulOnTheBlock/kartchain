@@ -10,6 +10,7 @@ extends Control
 @onready var modal_confirm: Button = $Modal/VBox/Confirm
 
 func _ready() -> void:
+	MusicPlayer.play_menu()
 	modal.visible = false
 	SolanaBridge.wallet_connected.connect(_on_wallet_connected)
 	connect_btn.pressed.connect(_open_modal)

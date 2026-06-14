@@ -10,6 +10,7 @@ extends Control
 @onready var status_label: Label = $Margin/VBox/Status
 
 func _ready() -> void:
+	MusicPlayer.play_menu()
 	# Disable the two modes we haven't built yet.
 	single_btn.disabled = true
 	single_btn.text = "SINGLE PLAYER  —  COMING SOON"

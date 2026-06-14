@@ -26,6 +26,7 @@ var _kart_buttons: Array[Button] = []
 const ICON_BASE_SIZE := Vector2(140, 140)
 
 func _ready() -> void:
+	MusicPlayer.stop()
 	confirm_button.pressed.connect(_on_confirm_pressed)
 	back_button.pressed.connect(_on_back_pressed)
 

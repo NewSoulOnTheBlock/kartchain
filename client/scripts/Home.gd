@@ -8,6 +8,7 @@ extends Control
 var _flash_t: float = 0.0
 
 func _ready() -> void:
+	MusicPlayer.play_menu()
 	name_label.text = "PLAYER: " + GameState.profile_name.to_upper()
 
 func _process(delta: float) -> void:
