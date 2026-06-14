@@ -362,9 +362,13 @@ export class RaceRoom extends Room<RaceState> {
    * ship in the client pck. Any unknown / unbundled id falls back to the
    * primary bundled track (lighthouse) so the race scene always renders.
    *
-   * For quick-race rooms (raceId = "quick-Np") we rotate through bundled
-   * tracks based on the UTC date so the same room size gets a different
-   * track day-to-day.
+   * raceId formats:
+   *   quick-Np-<trackId>   - new MapSelect format, track is explicit
+   *   quick-Np             - legacy quick-race (no map pick) — rotates by day
+   *   free-<trackId>       - lobby browser free-practice rooms
+   *   wager-0.01-sol       - paid wager, fixed track
+   *   wager-0.1-sol        - paid wager, fixed track
+   *   anything else        - first race-eligible bundled track
    */
   private _deriveTrackId(raceId: string): string {
     const bundledList = (process.env.CLIENT_BUNDLED_TRACKS ?? "lighthouse,cocoa_temple")
@@ -372,8 +376,15 @@ export class RaceRoom extends Room<RaceState> {
     const bundled = new Set(bundledList);
     const fallback = bundled.has("lighthouse") ? "lighthouse" : (bundledList[0] ?? "default");
 
-    // Quick-race: rotate by day so today vs tomorrow plays a different map.
-    if (raceId.startsWith("quick-") && bundledList.length > 0) {
+    // quick-Np-<trackId> — MapSelect-driven format.
+    const quickMatch = /^quick-\d+p-(.+)$/.exec(raceId);
+    if (quickMatch) {
+      const t = quickMatch[1];
+      return bundled.has(t) ? t : fallback;
+    }
+
+    // Legacy quick-Np (no map pick) — rotate by day.
+    if (/^quick-\d+p$/.test(raceId) && bundledList.length > 0) {
       const d = new Date();
       const daySeed = (d.getUTCFullYear() * 10000) + ((d.getUTCMonth() + 1) * 100) + d.getUTCDate();
       return bundledList[daySeed % bundledList.length];

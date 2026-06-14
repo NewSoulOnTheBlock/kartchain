@@ -27,14 +27,13 @@ func _ready() -> void:
 	status_label.text = ""
 
 # Start a quick-race matchmaking session. All players who pick the same size
-# end up in the same room (via the raceId 'quick-2p' / '4p' / '8p') and the
-# server starts the countdown once the room is full or the wait window
-# expires.
+# AND the same map end up in the same room (raceId carries both pieces of
+# info, server's filterBy(['raceId']) groups them together).
 func _start_quick(size: int) -> void:
-	GameState.pending_race_id = "quick-%dp" % size
-	GameState.pending_entry_fee_lamports = 0
 	GameState.pending_max_players = size
-	get_tree().change_scene_to_file("res://scenes/KartSelect.tscn")
+	GameState.pending_race_id = ""           # MapSelect will set this
+	GameState.pending_entry_fee_lamports = 0
+	get_tree().change_scene_to_file("res://scenes/MapSelect.tscn")
 
 func _on_edit_profile() -> void:
 	get_tree().change_scene_to_file("res://scenes/EditProfile.tscn")

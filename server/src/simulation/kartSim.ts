@@ -18,13 +18,13 @@ export type KartInput = {
   useItem: boolean;
 };
 
-const MAX_SPEED = 28;             // m/s
-const ACCELERATION = 18;          // m/s^2 at full throttle
-const REVERSE_ACCELERATION = 6;   // m/s^2 backwards
-const BRAKE_DECEL = 30;           // m/s^2
+const MAX_SPEED = 42;             // m/s (~150 km/h)
+const ACCELERATION = 28;          // m/s^2 at full throttle
+const REVERSE_ACCELERATION = 10;  // m/s^2 backwards
+const BRAKE_DECEL = 40;           // m/s^2
 const FRICTION = 2.5;             // m/s^2 passive
-const YAW_RATE_AT_SPEED = 1.6;    // rad/s at max effective steer
-const STEER_SPEED_SCALE = 0.6;    // less steering at high speed
+const YAW_RATE_AT_SPEED = 2.4;    // rad/s at max effective steer
+const STEER_SPEED_SCALE = 0.35;   // reduced from 0.6 — keeps more steering at top speed
 
 export function simulateKart(kart: Kart, input: KartInput, dt: number): void {
   const forward = { x: Math.sin(kart.yaw), z: Math.cos(kart.yaw) };

@@ -142,7 +142,7 @@
       "isCutscene": false,
       "mainModel": "tracks/cocoa_temple/cocoa_temple_track.spm",
       "sceneFile": "tracks/cocoa_temple/scene.xml",
-      "screenshot": null,
+      "screenshot": "tracks/cocoa_temple/test_track_postcard.jpg",
       "metaJson": "tracks/cocoa_temple/meta.json"
     },
     {

@@ -26,15 +26,15 @@ extends VehicleBody3D
 @export var player_id: String = ""
 
 # Tuning — overridden per NFT kart by `apply_stats(...)`
-@export var engine_force_max: float = 220.0
+@export var engine_force_max: float = 340.0
 @export var brake_force_max: float = 22.0
-@export var steering_max: float = 0.45
-@export var steering_speed: float = 4.0  # how fast wheels turn to target
+@export var steering_max: float = 0.65
+@export var steering_speed: float = 7.0  # how fast wheels turn to target
 # At top speed the kart steers a fraction of its low-speed max so it doesn't
-# tip on a quick flick. 0.4 ≈ 40% steering authority at high speed.
-@export var steering_high_speed_factor: float = 0.4
+# tip on a quick flick. 0.65 keeps a lot of steering authority at high speed.
+@export var steering_high_speed_factor: float = 0.65
 # Speed (m/s) at which steering reduction reaches full.
-@export var steering_speed_cutoff: float = 28.0
+@export var steering_speed_cutoff: float = 40.0
 
 var _input_throttle: float = 0.0
 var _input_brake: float = 0.0
@@ -56,8 +56,8 @@ var _tilted_for: float = 0.0
 var _recover_cooldown: float = 0.0       # min spacing between recoveries
 
 func apply_stats(top_speed_pct: float, accel_pct: float, handling_pct: float) -> void:
-	engine_force_max = 160.0 + 120.0 * accel_pct
-	steering_max = 0.30 + 0.25 * handling_pct
+	engine_force_max = 240.0 + 180.0 * accel_pct
+	steering_max = 0.45 + 0.35 * handling_pct
 
 ## Replace the placeholder BoxMesh body with a real STK kart glb.
 ## path is a res:// URI like "res://karts/tux/tux.glb".
