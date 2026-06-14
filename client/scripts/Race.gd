@@ -263,7 +263,8 @@ func _spawn_kart(pid: String, k_data: Dictionary) -> VehicleBody3D:
 		# (LobbyRoom's countdown begins as soon as every player in the room
 		# is ready.) Multi-player races still wait for everyone.
 		NetworkClient.send_ready()
-	var stats := _stats_for_kart(int(k_data.get("kartType", 0)))	node.apply_stats(stats["top_speed"], stats["accel"], stats["handling"])
+	var stats := _stats_for_kart(int(k_data.get("kartType", 0)))
+	node.apply_stats(stats["top_speed"], stats["accel"], stats["handling"])
 	var model_path := KartCatalog.kart_model_path(int(k_data.get("kartType", 0)))
 	if not model_path.is_empty():
 		node.set_kart_model(model_path)
