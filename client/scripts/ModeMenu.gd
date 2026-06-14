@@ -1,28 +1,25 @@
 extends Control
 ## ModeMenu — Single Player / Grand Prix / Quick Race.
-## All three currently route to the lobby (Main.tscn). Tweak the routes
-## later to map each mode to its own room type.
+## Only Quick Race is wired up; the other two are placeholders.
 
 @onready var single_btn: Button = $Margin/VBox/Modes/SinglePlayer
 @onready var gp_btn: Button     = $Margin/VBox/Modes/GrandPrix
 @onready var quick_btn: Button  = $Margin/VBox/Modes/QuickRace
 @onready var profile_btn: Button = $Margin/VBox/Footer/EditProfile
 @onready var sign_out_btn: Button = $Margin/VBox/Footer/SignOut
+@onready var status_label: Label = $Margin/VBox/Status
 
 func _ready() -> void:
-	single_btn.pressed.connect(_on_single)
-	gp_btn.pressed.connect(_on_gp)
+	# Disable the two modes we haven't built yet.
+	single_btn.disabled = true
+	single_btn.text = "SINGLE PLAYER  —  COMING SOON"
+	gp_btn.disabled = true
+	gp_btn.text = "GRAND PRIX  —  COMING SOON"
+
 	quick_btn.pressed.connect(_on_quick)
 	profile_btn.pressed.connect(_on_edit_profile)
 	sign_out_btn.pressed.connect(_on_sign_out)
-
-func _on_single() -> void:
-	# TODO: dedicated single-player local mode. For MVP route to lobby.
-	get_tree().change_scene_to_file("res://scenes/Main.tscn")
-
-func _on_gp() -> void:
-	# TODO: Grand Prix (3-track championship). For MVP route to lobby.
-	get_tree().change_scene_to_file("res://scenes/Main.tscn")
+	status_label.text = ""
 
 func _on_quick() -> void:
 	get_tree().change_scene_to_file("res://scenes/Main.tscn")

@@ -6,7 +6,7 @@ export default function RacePage() {
   return (
     <div>
       <nav className="nav">
-        <div className="brand"><Link href="/" style={{ color: "inherit" }}>KARTCHAIN</Link></div>
+        <div className="brand"><Link href="/" style={{ color: "inherit" }}>TRENCHKART</Link></div>
         <div className="nav-links">
           <Link href="/race">Race</Link>
           <Link href="/garage">Garage</Link>

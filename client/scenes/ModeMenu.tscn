@@ -45,6 +45,11 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 48
 text = "CHOOSE MODE"
 
+[node name="Status" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.7)
+text = ""
+
 [node name="Modes" type="VBoxContainer" parent="Margin/VBox"]
 layout_mode = 2
 size_flags_vertical = 3

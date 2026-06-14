@@ -4,7 +4,7 @@ import "./globals.css";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const metadata: Metadata = {
-  title: "Kartchain",
+  title: "TrenchKart",
   description: "Web3 SuperTuxKart-inspired browser kart racer on Solana",
 };
 

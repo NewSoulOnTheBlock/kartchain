@@ -5,7 +5,7 @@ export default function HomePage() {
   return (
     <div>
       <nav className="nav">
-        <div className="brand">KARTCHAIN</div>
+        <div className="brand">TRENCHKART</div>
         <div className="nav-links">
           <Link href="/race">Race</Link>
           <Link href="/garage">Garage</Link>
