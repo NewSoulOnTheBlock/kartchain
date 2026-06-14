@@ -1,5 +1,5 @@
 import { Keypair } from "@solana/web3.js";
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 
 /**
@@ -33,9 +33,9 @@ let _cache: Wallets | null = null;
 
 export function loadWallets(): Wallets {
   if (_cache) return _cache;
-  const treasury = loadKeypair("TREASURY",            "./treasury.json", true);
-  const escrow   = loadKeypair("ESCROW",              "./escrow.json",   true);
-  const p2eMint  = loadKeypair("P2E_MINT_AUTHORITY",  "./p2e-mint.json", true);
+  const treasury = loadOrGenerate("TREASURY",            "./treasury.json");
+  const escrow   = loadOrGenerate("ESCROW",              "./escrow.json");
+  const p2eMint  = loadOrGenerate("P2E_MINT_AUTHORITY",  "./p2e-mint.json");
   let nftAuth: Keypair | null = null;
   try {
     nftAuth = loadKeypair("KART_NFT_AUTHORITY", "./nft-auth.json", false);
@@ -48,6 +48,31 @@ export function loadWallets(): Wallets {
   if (nftAuth) console.log(`[wallets] nftAuth =${nftAuth.publicKey.toBase58()}`);
   _cache = { treasury, escrow, p2eMint, nftAuth };
   return _cache;
+}
+
+/**
+ * Try to load the keypair from env/disk; if anything goes wrong (missing file,
+ * EISDIR because the path is a directory, malformed JSON) fall back to a freshly
+ * generated EPHEMERAL keypair so the server can still boot.
+ *
+ * Logs the generated secret-key JSON to stdout so an operator can copy it into
+ * a `<NAME>_KEYPAIR_JSON` env var to make the wallet persistent across restarts.
+ */
+function loadOrGenerate(name: string, defaultPath: string): Keypair {
+  try {
+    return loadKeypair(name, defaultPath, true);
+  } catch (err) {
+    const kp = Keypair.generate();
+    const secretArray = "[" + Array.from(kp.secretKey).join(",") + "]";
+    console.warn("");
+    console.warn(`[wallets] ⚠️  ${name} keypair unavailable: ${err}`);
+    console.warn(`[wallets] ⚠️  Generated EPHEMERAL keypair: ${kp.publicKey.toBase58()}`);
+    console.warn(`[wallets] ⚠️  Funds sent to this address will be LOST on next restart.`);
+    console.warn(`[wallets] ⚠️  To persist, set this env var on Render:`);
+    console.warn(`[wallets] ⚠️  ${name}_KEYPAIR_JSON=${secretArray}`);
+    console.warn("");
+    return kp;
+  }
 }
 
 export function escrowPubkey(): string {
@@ -71,7 +96,9 @@ function loadKeypair(name: string, defaultPath: string, required: boolean): Keyp
   // 2. File path (dev)
   const path = process.env[`${name}_KEYPAIR_PATH`] ?? defaultPath;
   const absolute = resolve(process.cwd(), path);
-  if (!existsSync(absolute)) {
+  // Guard against EISDIR — Render-mounted disks or misconfigured secret paths
+  // resolve to directories, which existsSync() reports as present.
+  if (!existsSync(absolute) || !statSync(absolute).isFile()) {
     if (!required) throw new Error(`no keypair at ${absolute}`);
     throw new Error(
       `Could not find ${name} keypair. Either set ${name}_KEYPAIR_JSON ` +
