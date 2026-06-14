@@ -84,11 +84,14 @@ func _load_persisted_spawn() -> void:
 # track's spawn offset so all karts (including remote ones) respawn there.
 func set_spawn_at_world_position(world_pos: Vector3) -> void:
 	_spawn_override_world = world_pos
-	# Persist to localStorage so it survives reloads and respawns
+	# Persist locally so reload re-applies it for this player.
 	if _loaded_track_id != "":
 		var payload = JSON.stringify({"x": world_pos.x, "y": world_pos.y, "z": world_pos.z})
 		SolanaBridge.storage_set(_spawn_storage_key(), payload)
-	print("[race] spawn point set: ", world_pos)
+	# Broadcast to every player in this room — so a friend who joins sees
+	# everyone at the same shared starting line.
+	NetworkClient.set_spawn(world_pos.x, world_pos.y, world_pos.z)
+	print("[race] spawn point set + broadcast: ", world_pos)
 	for pid in karts_by_id.keys():
 		var kart: VehicleBody3D = karts_by_id[pid]
 		if not is_instance_valid(kart):
@@ -161,10 +164,14 @@ func _on_race_state(state: Dictionary) -> void:
 	if not state.has("karts"):
 		return
 	var karts = state["karts"]
-	# Compute the effective spawn anchor. If the user pressed Y in free-cam
-	# we use that absolute world position; otherwise fall back to the
-	# track's hand-coded default offset added to the server's flat-world
-	# position.
+	# Server-broadcast spawn override takes priority over local one — so all
+	# players in the room see karts at the same place.
+	var server_has_override := bool(state.get("hasSpawnOverride", false))
+	if server_has_override:
+		_spawn_override_world = Vector3(
+			float(state.get("spawnX", 0.0)),
+			float(state.get("spawnY", 0.0)),
+			float(state.get("spawnZ", 0.0)))
 	var has_override := _spawn_override_world != Vector3.INF
 	var offset := Vector3.ZERO if has_override else (
 		TrackLoader.spawn_offset(_loaded_track_id) if _loaded_track_id != "" else Vector3.ZERO)

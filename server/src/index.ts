@@ -82,8 +82,10 @@ async function main() {
   });
 
   gameServer.define("lobby", LobbyRoom);
-  // RaceRoom is created on demand by LobbyRoom via `matchMaker.createRoom`.
-  gameServer.define("race", RaceRoom);
+  // filterBy(["raceId"]) means joinOrCreate("race", { raceId: "X" }) will
+  // group every player who passed the same raceId into the SAME room.
+  // Without this, every player creates their own empty race room.
+  gameServer.define("race", RaceRoom).filterBy(["raceId"]);
 
   // Eagerly load all custodial keypairs so we fail fast on misconfig.
   loadWallets();

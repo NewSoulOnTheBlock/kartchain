@@ -70,6 +70,7 @@ type KartchainApi = {
     sendInput: (i: { seq: number; throttle: number; brake: number; steer: number; items: number }) => void;
     sendReady: () => void;
     useItem: (slot: number) => void;
+    setSpawn: (x: number, y: number, z: number) => void;
     /** Subscribers receive a JSON-stringified NetEvent. */
     subscribe: (cb: (json: string) => void) => void;
   };
@@ -347,6 +348,10 @@ function makeApi(deps: {
               state: {
                 phase: state.phase, trackId: state.trackId,
                 totalLaps: state.totalLaps, karts,
+                hasSpawnOverride: !!state.hasSpawnOverride,
+                spawnX: state.spawnOverrideX,
+                spawnY: state.spawnOverrideY,
+                spawnZ: state.spawnOverrideZ,
               },
             });
           });
@@ -385,6 +390,10 @@ function makeApi(deps: {
       sendInput(input) { raceRef.current?.send("input", input); },
       sendReady()      { raceRef.current?.send("ready", {}); },
       useItem(slot)    { raceRef.current?.send("useItem", { slot }); },
+      /** Broadcast a spawn-point override to every player in the room. */
+      setSpawn(x: number, y: number, z: number) {
+        raceRef.current?.send("setSpawn", { x, y, z });
+      },
 
       subscribe(cb)    { netSubs.current.push(cb); },
     },

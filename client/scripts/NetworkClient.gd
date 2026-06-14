@@ -153,3 +153,9 @@ func send_input(throttle: float, brake: float, steer: float, items: int) -> void
 func use_item(slot: int) -> void:
 	if _js_bridge:
 		_js_bridge.useItem(slot)
+
+# Broadcast a spawn-point override to every player in the room.
+# The server stores it in race state and all clients use it on next state tick.
+func set_spawn(x: float, y: float, z: float) -> void:
+	if _js_bridge:
+		_js_bridge.setSpawn(x, y, z)

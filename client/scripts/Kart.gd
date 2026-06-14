@@ -77,9 +77,15 @@ func _read_local_input() -> void:
 		NetworkClient.use_item(1)
 
 func _apply_drive(delta: float) -> void:
+	# W (throttle) should drive the kart FORWARD; S (brake) backward.
+	# Godot's VehicleBody3D + our default wheel orientation drives "forward"
+	# in the opposite direction from what feels natural with our chase cam,
+	# so we negate to put the kart's motion in the camera's forward direction.
 	var drive = _input_throttle - _input_brake
-	engine_force = drive * engine_force_max
-	brake = _input_brake * brake_force_max
+	engine_force = -drive * engine_force_max
+	# No active brake — pressing S applies reverse engine force instead, which
+	# both slows a forward-moving kart and lets you back up from a standstill.
+	brake = 0.0
 	_current_steer = lerp(_current_steer, _input_steer * steering_max, clamp(steering_speed * delta, 0.0, 1.0))
 	steering = _current_steer
 

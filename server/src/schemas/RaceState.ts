@@ -40,4 +40,9 @@ export class RaceState extends Schema {
   @type("uint32") tick = 0;
   /** Server time when race started (ms since epoch) */
   @type("number") startTimestamp = 0;
+  /** Per-room spawn override (player can broadcast via setSpawn) */
+  @type("boolean") hasSpawnOverride = false;
+  @type("number")  spawnOverrideX = 0;
+  @type("number")  spawnOverrideY = 0;
+  @type("number")  spawnOverrideZ = 0;
 }

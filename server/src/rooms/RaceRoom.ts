@@ -68,11 +68,21 @@ export class RaceRoom extends Room<RaceState> {
     });
 
     this.onMessage("useItem", (client, payload: { slot: number }) => {
-      // Stub: simply clear the slot. Real impl: spawn projectile/effect.
       const kart = this.state.karts.get(client.sessionId);
       if (kart && kart.itemSlot === payload.slot) {
         kart.itemSlot = 0;
       }
+    });
+
+    // Any player can submit a "spawn override" world position — the server
+    // stores it in state so every kart spawns at the same place.
+    this.onMessage("setSpawn", (_client, payload: { x: number; y: number; z: number }) => {
+      if (typeof payload?.x !== "number") return;
+      this.state.spawnOverrideX = payload.x;
+      this.state.spawnOverrideY = payload.y;
+      this.state.spawnOverrideZ = payload.z;
+      this.state.hasSpawnOverride = true;
+      console.log(`[race:${this.raceId}] spawn override set: (${payload.x.toFixed(1)}, ${payload.y.toFixed(1)}, ${payload.z.toFixed(1)})`);
     });
 
     // 30 Hz tick
