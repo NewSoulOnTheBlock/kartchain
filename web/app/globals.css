@@ -35,4 +35,76 @@ a { color: var(--accent); text-decoration: none; }
 .game-shell { width: 100%; height: calc(100vh - 64px); background: #000; }
 .game-shell iframe { width: 100%; height: 100%; border: 0; display: block; }
 
+/* ── Godot host wrapper: needed so the boot splash can sit above the iframe */
+.godot-host { position: relative; width: 100%; height: 100%; }
+.godot-host > iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ── TrenchKart boot splash — covers the default Godot loader */
+.tk-boot {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  background:
+    radial-gradient(ellipse at center, #142036 0%, #050912 70%, #000 100%);
+  font-family: "Press Start 2P", ui-monospace, "Courier New", monospace;
+  letter-spacing: 4px;
+  user-select: none;
+  animation: tkBootFadeIn 200ms ease-out;
+}
+@keyframes tkBootFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.tk-boot-logo {
+  font-size: clamp(48px, 9vw, 120px);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow:
+    0 0 12px rgba(91, 225, 255, 0.55),
+    0 0 32px rgba(91, 225, 255, 0.35);
+}
+.tk-boot-logo .tk-trench { color: #5be1ff; }
+.tk-boot-logo .tk-kart {
+  color: #ff5bd2;
+  margin-left: 6px;
+  text-shadow:
+    0 0 12px rgba(255, 91, 210, 0.65),
+    0 0 32px rgba(255, 91, 210, 0.35);
+}
+.tk-boot-bar {
+  width: min(420px, 60vw);
+  height: 10px;
+  border: 2px solid #5be1ff;
+  border-radius: 4px;
+  overflow: hidden;
+  background: rgba(91, 225, 255, 0.08);
+  box-shadow: 0 0 12px rgba(91, 225, 255, 0.35);
+}
+.tk-boot-bar-fill {
+  height: 100%;
+  width: 30%;
+  background: linear-gradient(90deg, #5be1ff 0%, #ff5bd2 100%);
+  border-radius: 2px;
+  animation: tkBootSlide 1.2s ease-in-out infinite;
+}
+@keyframes tkBootSlide {
+  0%   { transform: translateX(-120%); }
+  100% { transform: translateX(420%); }
+}
+.tk-boot-text {
+  color: #e6edf7;
+  font-size: 14px;
+  letter-spacing: 6px;
+  animation: tkBootBlink 1s steps(2, jump-none) infinite;
+}
+@keyframes tkBootBlink {
+  0%, 49%   { opacity: 1; }
+  50%, 100% { opacity: 0.35; }
+}
+
 .wallet-adapter-button { background: var(--accent) !important; color: var(--bg) !important; }
