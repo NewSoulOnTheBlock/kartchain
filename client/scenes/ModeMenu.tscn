@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://kartchain_modemenu"]
 
 [ext_resource type="Script" path="res://scripts/ModeMenu.gd" id="1_mode"]
-[ext_resource type="Texture2D" path="res://assets/lobby_bg.png" id="2_bg"]
+[ext_resource type="Texture2D" path="res://assets/mode_menu_bg.png" id="2_bg"]
 
 [node name="ModeMenu" type="Control"]
 layout_mode = 3
