@@ -330,7 +330,7 @@ function makeApi(deps: {
           console.log("[kartchain] joined race:", room.roomId, "sessionId:", room.sessionId);
           emitNet({ type: "race:self", sessionId: room.sessionId });
 
-          room.onStateChange(() => {
+          const emitRaceState = () => {
             const state: any = room.state;
             const karts: Record<string, any> = {};
             if (state?.karts && typeof state.karts.forEach === "function") {
@@ -346,20 +346,36 @@ function makeApi(deps: {
             emitNet({
               type: "race:state",
               state: {
-                phase: state.phase, trackId: state.trackId,
-                totalLaps: state.totalLaps, karts,
-                hasSpawnOverride: !!state.hasSpawnOverride,
-                spawnX: state.spawnOverrideX,
-                spawnY: state.spawnOverrideY,
-                spawnZ: state.spawnOverrideZ,
+                phase: state?.phase ?? "waiting",
+                trackId: state?.trackId ?? "",
+                totalLaps: state?.totalLaps ?? 3,
+                karts,
+                hasSpawnOverride: !!state?.hasSpawnOverride,
+                spawnX: state?.spawnOverrideX ?? 0,
+                spawnY: state?.spawnOverrideY ?? 0,
+                spawnZ: state?.spawnOverrideZ ?? 0,
               },
             });
-          });
+          };
+
+          // Emit immediately for any state already received during the join
+          // handshake — otherwise the client deadlocks (it never spawns its
+          // kart, never sends `ready`, server never starts).
+          emitRaceState();
+          room.onStateChange(emitRaceState);
           room.onMessage("countdown", (m: any) => emitNet({ type: "race:countdown", seconds: m.seconds }));
           room.onMessage("lap",       (m: any) => emitNet({ type: "race:lap", playerId: m.playerId, lapNumber: m.lapNumber, lapTime: m.lapTime }));
           room.onMessage("finish",    (m: any) => emitNet({ type: "race:finish", playerId: m.playerId, totalTime: m.totalTime, position: m.position }));
           room.onMessage("settled",   (m: any) => emitNet({ type: "race:settled", txSignature: m.txSignature }));
           room.onMessage("error",     (m: any) => emitNet({ type: "error", code: m.code, message: m.message }));
+          room.onError((code, message) => {
+            console.error("[kartchain] race room error", code, message);
+            emitNet({ type: "error", code: String(code), message: message ?? "" });
+          });
+          room.onLeave((code) => {
+            console.warn("[kartchain] race room left, code:", code);
+            emitNet({ type: "error", code: "RACE_LEFT", message: `Disconnected from race (code ${code})` });
+          });
         } catch (err) {
           console.error("[kartchain] joinRace failed:", err);
           emitNet({ type: "error", code: "RACE_JOIN_FAILED", message: String(err) });
