@@ -332,6 +332,11 @@ function makeApi(deps: {
 
           const emitRaceState = () => {
             const state: any = room.state;
+            // It's possible (depending on Colyseus version + timing) that
+            // joinOrCreate's promise resolves before the first state sync.
+            // Skip if state hasn't been populated yet — onStateChange.once()
+            // below will catch it as soon as it arrives.
+            if (!state) return;
             const karts: Record<string, any> = {};
             if (state?.karts && typeof state.karts.forEach === "function") {
               state.karts.forEach((k: any, id: string) => {
@@ -343,8 +348,8 @@ function makeApi(deps: {
                 };
               });
             }
-            emitNet({
-              type: "race:state",
+            const payload = {
+              type: "race:state" as const,
               state: {
                 phase: state?.phase ?? "waiting",
                 trackId: state?.trackId ?? "",
@@ -355,14 +360,40 @@ function makeApi(deps: {
                 spawnY: state?.spawnOverrideY ?? 0,
                 spawnZ: state?.spawnOverrideZ ?? 0,
               },
-            });
+            };
+            console.log("[kartchain] race:state emit", payload.state.phase,
+              "trackId=", payload.state.trackId, "karts=", Object.keys(karts).length);
+            emitNet(payload);
           };
 
-          // Emit immediately for any state already received during the join
-          // handshake — otherwise the client deadlocks (it never spawns its
-          // kart, never sends `ready`, server never starts).
+          // BELT-AND-SUSPENDERS catch of the initial schema sync:
+          //   1) Try emitting immediately — works if state arrived during the
+          //      join handshake (Colyseus often does this).
+          //   2) onStateChange.once() — guaranteed to fire on the FIRST sync,
+          //      even if it arrives after joinOrCreate resolves.
+          //   3) onStateChange() — every subsequent change.
           emitRaceState();
-          room.onStateChange(emitRaceState);
+          let firstStateSeen = false;
+          room.onStateChange.once((s: any) => {
+            firstStateSeen = true;
+            console.log("[kartchain] race onStateChange.once fired — initial state synced");
+            emitRaceState();
+          });
+          room.onStateChange((s: any) => emitRaceState());
+
+          // Safety net — if no state has arrived in 10s, the server is
+          // probably not responding. Surface an error to the user instead
+          // of leaving them stuck on the connecting overlay.
+          window.setTimeout(() => {
+            if (!firstStateSeen) {
+              console.error("[kartchain] no race state after 10s — server likely unreachable");
+              emitNet({
+                type: "error",
+                code: "RACE_NO_STATE",
+                message: "No state from server after 10s. Check that the server is running and reachable.",
+              });
+            }
+          }, 10_000);
           room.onMessage("countdown", (m: any) => emitNet({ type: "race:countdown", seconds: m.seconds }));
           room.onMessage("lap",       (m: any) => emitNet({ type: "race:lap", playerId: m.playerId, lapNumber: m.lapNumber, lapTime: m.lapTime }));
           room.onMessage("finish",    (m: any) => emitNet({ type: "race:finish", playerId: m.playerId, totalTime: m.totalTime, position: m.position }));

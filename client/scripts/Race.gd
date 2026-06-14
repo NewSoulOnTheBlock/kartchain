@@ -17,6 +17,7 @@ var karts_by_id: Dictionary = {}  # player_id -> Kart
 var local_player_id: String = ""
 var _race_state_received: bool = false
 var _status_t: float = 0.0
+var _has_net_error: bool = false
 
 var _track_node: Node3D = null
 var _loaded_track_id: String = ""
@@ -51,6 +52,7 @@ func _ready() -> void:
 	_show_debug_hint()
 
 func _on_net_error(code: String, message: String) -> void:
+	_has_net_error = true
 	status_overlay.text = "RACE ERROR: %s\n%s\n\nPress ESC to leave" % [code, message]
 	status_overlay.visible = true
 
@@ -153,8 +155,9 @@ func _snap_camera_behind_kart() -> void:
 	camera.look_at(local_kart.global_position + up * 0.5, Vector3.UP)
 
 func _process(_delta: float) -> void:
-	# Tick the connecting-status animation + auto-hide once the local kart spawns
-	if status_overlay.visible:
+	# Tick the connecting-status animation + auto-hide once the local kart spawns.
+	# When an error has been surfaced, leave that text alone — don't overwrite.
+	if status_overlay.visible and not _has_net_error:
 		_status_t += _delta
 		var dots := int(_status_t * 2.0) % 4
 		if not _race_state_received:
