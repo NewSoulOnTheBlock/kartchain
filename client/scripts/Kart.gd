@@ -96,7 +96,7 @@ func _fit_collision_to_model() -> void:
 	var collision := get_node_or_null("Collision") as CollisionShape3D
 	if collision == null or not (collision.shape is BoxShape3D):
 		return
-	var aabb := _aggregate_aabb(_stk_model)
+	var aabb := _aggregate_local_aabb(_stk_model, _stk_model)
 	if aabb.size == Vector3.ZERO:
 		return
 	# Clamp each axis: min 0.8m so tiny karts still have body, max 3.0m so
@@ -108,20 +108,36 @@ func _fit_collision_to_model() -> void:
 		clamp(aabb.size.z, 1.2, 3.0),
 	)
 	(collision.shape as BoxShape3D).size = size
+	# Center the collision shape on the AABB center (plus the model's own
+	# Y offset) so a kart whose mesh sits off-origin still gets a
+	# correctly-placed hitbox.
+	collision.position = aabb.get_center() + _stk_model.position
 
-func _aggregate_aabb(node: Node) -> AABB:
+## Walk every MeshInstance3D under `node`, accumulating their AABBs into
+## `root`'s local frame using each node's transform relative to `root`.
+## Doesn't rely on global_transform (which isn't yet computed when called
+## from within set_kart_model immediately after add_child).
+func _aggregate_local_aabb(node: Node, root: Node3D) -> AABB:
 	var out := AABB()
 	var seeded := false
-	for child in _collect_mesh_instances(node):
-		var ab: AABB = child.global_transform * child.get_aabb()
-		# Translate into the kart's local space so the box is centered correctly.
-		ab.position -= global_position
+	for mi in _collect_mesh_instances(node):
+		var local_xform := _transform_from(mi, root)
+		var ab: AABB = local_xform * mi.get_aabb()
 		if not seeded:
 			out = ab
 			seeded = true
 		else:
 			out = out.merge(ab)
 	return out
+
+func _transform_from(child: Node3D, root: Node3D) -> Transform3D:
+	var xform := Transform3D.IDENTITY
+	var cursor: Node = child
+	while cursor != null and cursor != root:
+		if cursor is Node3D:
+			xform = (cursor as Node3D).transform * xform
+		cursor = cursor.get_parent()
+	return xform
 
 func _collect_mesh_instances(node: Node) -> Array:
 	var out: Array = []
