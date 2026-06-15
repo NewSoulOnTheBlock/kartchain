@@ -15,7 +15,8 @@
  *     signAndSendClaimP2E,   // no-op in custodial flow; reserved for future
  *     getOwnedKarts,
  *     subscribe,
- *     net: { joinLobby, joinRace, leaveRoom, sendInput, sendReady, useItem, subscribe }
+ *     net: { joinLobby, joinRace, leaveRoom, sendInput, sendReady, useItem, subscribe },
+ *     sim: { init, isReady, initSlot, setPose, tick, read, readHex } // PvP prediction
  *   }
  */
 
@@ -27,6 +28,7 @@ import {
   Connection, PublicKey, SystemProgram, Transaction, TransactionInstruction,
 } from "@solana/web3.js";
 import { fetchOwnedKarts } from "@/lib/karts-fetch";
+import { makeSimBridge, type SimBridge } from "@/lib/sim-bridge";
 
 declare global {
   interface Window {
@@ -90,6 +92,12 @@ type KartchainApi = {
     /** Subscribers receive a JSON-stringified NetEvent. */
     subscribe: (cb: (json: string) => void) => void;
   };
+  /**
+   * Deterministic kart physics WASM (Rust-compiled, shared with the server).
+   * GDScript calls these via JavaScriptBridge for client-side prediction +
+   * future input-log replay verification. See web/lib/sim-bridge.ts.
+   */
+  sim: SimBridge;
 };
 
 const COLYSEUS_URL = process.env.NEXT_PUBLIC_COLYSEUS_URL ?? "ws://localhost:2567";
@@ -511,5 +519,9 @@ function makeApi(deps: {
 
       subscribe(cb)    { netSubs.current.push(cb); },
     },
+    // Deterministic kart physics WASM. Lazy-loaded — the first call to
+    // sim.init() fetches /sim/kart_sim.wasm and compiles it. Subsequent
+    // calls are synchronous. See web/lib/sim-bridge.ts.
+    sim: makeSimBridge(),
   };
 }

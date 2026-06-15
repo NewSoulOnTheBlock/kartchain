@@ -57,6 +57,11 @@ func _ready() -> void:
 	NetworkClient.race_settled.connect(_on_settled)
 	NetworkClient.net_error.connect(_on_net_error)
 
+	# Kick off the deterministic kart-sim .wasm load early so it's ready
+	# by the time the countdown ends. Safe to call before the bridge is up
+	# (WasmSim.init_async retries internally).
+	WasmSim.init_async()
+
 	# local_player_id is set by race:self (Colyseus sessionId), NOT the wallet pubkey.
 	local_player_id = ""
 	countdown_label.text = ""
@@ -186,6 +191,44 @@ func _snap_camera_behind_kart() -> void:
 	camera.global_position = local_kart.global_position + back * 6.0 + up * 3.0
 	camera.look_at(local_kart.global_position + up * 0.5, Vector3.UP)
 
+# Soft reconciliation between locally-predicted state and the server's
+# authoritative state. Three bands so the local kart doesn't teleport
+# under tiny network jitter and doesn't lerp forever under big divergence.
+#
+#   drift <  SOFT_DRIFT_M      -> ignore; client prediction wins
+#   drift <  HARD_SNAP_M       -> lerp visually over RECONCILE_LERP_S
+#   drift >= HARD_SNAP_M       -> hard snap (player teleported or cheated)
+#
+# In horizontal plane only (Y left to Godot's gravity + track collision).
+const SOFT_DRIFT_M:     float = 1.0
+const HARD_SNAP_M:      float = 12.0
+const RECONCILE_LERP_S: float = 0.30
+
+# Per-frame reconciliation state for the local kart only.
+var _reconcile_target: Vector3 = Vector3.ZERO
+var _reconcile_yaw_target: float = 0.0
+var _reconcile_t_remaining: float = 0.0
+
+func _reconcile_local_kart(node: VehicleBody3D, target_world: Vector3, target_yaw: float) -> void:
+	# Compare only the horizontal plane — Y is owned by Godot physics
+	# (gravity + STK track collision; the WASM sim is 2D today).
+	var here := Vector2(node.global_position.x, node.global_position.z)
+	var there := Vector2(target_world.x, target_world.z)
+	var drift := here.distance_to(there)
+	if drift < SOFT_DRIFT_M:
+		# Client prediction matches the server within noise — no correction.
+		_reconcile_t_remaining = 0.0
+		return
+	if drift >= HARD_SNAP_M:
+		# Big divergence — snap rather than slingshot the visual through 12m.
+		node.global_position = Vector3(target_world.x, node.global_position.y, target_world.z)
+		_reconcile_t_remaining = 0.0
+		return
+	# Soft lerp toward the server's reported position over the next 300ms.
+	_reconcile_target = Vector3(target_world.x, node.global_position.y, target_world.z)
+	_reconcile_yaw_target = target_yaw
+	_reconcile_t_remaining = RECONCILE_LERP_S
+
 func _process(_delta: float) -> void:
 	# Status overlay logic — surface what the race is doing right now:
 	#   - error state: stick with the error message
@@ -226,6 +269,10 @@ func _process(_delta: float) -> void:
 	if local_kart and is_instance_valid(local_kart) and local_kart.global_position.y < DEATH_FLOOR_Y:
 		if local_kart.has_method("recover"):
 			local_kart.recover()
+	# Soft drift correction toward the last server-reported position.
+	# Runs after physics + before camera so the chase cam follows the
+	# corrected pose, not the pre-correction one.
+	_apply_reconcile_lerp(_delta)
 	# Kart-follow chase cam — sits 6 units behind, 3 above, looking at the kart.
 	if not _free_cam_enabled and local_kart and is_instance_valid(local_kart):
 		var back = local_kart.global_transform.basis.z   # Godot: +Z is back
@@ -234,6 +281,24 @@ func _process(_delta: float) -> void:
 		camera.global_position = camera.global_position.lerp(target, 0.25)
 		camera.look_at(local_kart.global_position + Vector3(0, 0.8, 0), Vector3.UP)
 	_update_boost_hud()
+
+# Pulls the local kart toward _reconcile_target over RECONCILE_LERP_S
+# seconds. Called from _process so the visual catches up smoothly between
+# server state ticks; cleared automatically when the timer runs out or a
+# new server state arrives with a different target.
+func _apply_reconcile_lerp(_delta: float) -> void:
+	if _reconcile_t_remaining <= 0.0:
+		return
+	if local_kart == null or not is_instance_valid(local_kart):
+		_reconcile_t_remaining = 0.0
+		return
+	# Step toward target; faster when we have less time left so we always
+	# converge within the window.
+	var alpha: float = clamp(_delta / max(0.01, _reconcile_t_remaining), 0.0, 1.0)
+	var p := local_kart.global_position
+	var goal := Vector3(_reconcile_target.x, p.y, _reconcile_target.z)
+	local_kart.global_position = p.lerp(goal, alpha)
+	_reconcile_t_remaining = max(0.0, _reconcile_t_remaining - _delta)
 
 # Reflects local_kart.boost_charge into the bottom-center bar. Tints
 # the bar gold + relabels while the boost is actively firing.
@@ -330,9 +395,7 @@ func _on_race_state(state: Dictionary) -> void:
 		if node == local_kart:
 			var phase := String(state.get("phase", "waiting"))
 			if phase == "racing":
-				var drift := node.global_position.distance_to(target_world)
-				if drift > 6.0:
-					node.global_position = target_world
+				_reconcile_local_kart(node, target_world, yaw)
 		else:
 			node.set_net_target(target_world, yaw)
 		if pid == local_player_id:

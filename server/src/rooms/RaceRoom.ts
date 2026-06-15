@@ -85,9 +85,15 @@ export class RaceRoom extends Room<RaceState> {
           if (!this._lastSeq.has(client.sessionId)) {
             console.log(`[race:${this.raceId}] FIRST input from ${client.sessionId} throttle=${payload.throttle} steer=${payload.steer}`);
           }
+          const seq = Number(payload.seq) || 0;
           const last = this._lastSeq.get(client.sessionId) ?? -1;
-          if (payload.seq <= last) return; // drop stale
-          this._lastSeq.set(client.sessionId, payload.seq);
+          if (seq <= last) return; // drop stale
+          this._lastSeq.set(client.sessionId, seq);
+          // Expose the accepted seq via Schema so clients can reconcile —
+          // anything with seq > kart.lastInputSeq is still "in flight" and
+          // needs to be replayed locally after applying server state.
+          const kartForSeq = this.state.karts.get(client.sessionId);
+          if (kartForSeq) kartForSeq.lastInputSeq = seq;
           this._inputs.set(client.sessionId, {
             throttle: clamp(Number(payload.throttle) || 0, -1, 1),
             brake: clamp(Number(payload.brake) || 0, 0, 1),

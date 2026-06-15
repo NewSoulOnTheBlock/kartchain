@@ -4,9 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
-    "build": "next build",
+    "build": "npm run sim:copy && next build",
     "start": "next start -p 3000",
-    "lint": "next lint"
+    "lint": "next lint",
+    "sim:build": "cd ../sim && cargo rustc --release --target wasm32-unknown-unknown --crate-type cdylib",
+    "sim:copy": "node -e \"const fs=require('fs');const path=require('path');const src=path.resolve('..','sim','target','wasm32-unknown-unknown','release','kart_sim.wasm');const dst=path.resolve('public','sim','kart_sim.wasm');if(!fs.existsSync(src)){console.error('kart_sim.wasm not found at '+src+' — run npm run sim:build');process.exit(1);}fs.mkdirSync(path.dirname(dst),{recursive:true});fs.copyFileSync(src,dst);console.log('copied '+src+' -> '+dst);\""
   },
   "dependencies": {
     "@solana/wallet-adapter-base": "^0.9.23",

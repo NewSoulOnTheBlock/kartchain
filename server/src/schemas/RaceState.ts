@@ -18,6 +18,16 @@ export class Kart extends Schema {
   @type("boolean") ready = false;
   @type("boolean") finished = false;
   @type("number") finishTime = 0;
+  /**
+   * The sequence number of the last input message the server actually
+   * processed for this kart. Clients use this to reconcile their predicted
+   * state against the server's authoritative state — only inputs with seq
+   * > lastInputSeq are still "in flight" and need to be replayed locally
+   * after applying server state.
+   *
+   * 0 = no input received yet (e.g. waiting phase).
+   */
+  @type("uint32") lastInputSeq = 0;
 }
 
 export class RaceState extends Schema {

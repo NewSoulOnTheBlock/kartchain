@@ -81,4 +81,42 @@ describe("Kartchain rooms", () => {
       new Promise((r) => setTimeout(r, 500)),
     ]);
   });
+
+  it("kart.lastInputSeq mirrors the highest accepted input seq", async () => {
+    // Reconciliation primitive: clients use kart.lastInputSeq to know
+    // which inputs are still in-flight and need to be replayed locally
+    // after applying server state. This test verifies the server actually
+    // propagates the accepted seq into the schema (regardless of race phase).
+    const room = await colyseus.createRoom("race", {
+      raceId: "seq-test",
+      entryFeeLamports: "0",
+      maxPlayers: 1,
+    });
+    const client = await colyseus.connectTo(room, {
+      raceId: "seq-test", wallet: "", maxPlayers: 1,
+    });
+    const sessionId = client.sessionId;
+    const kart = room.state.karts.get(sessionId);
+    expect(kart).toBeDefined();
+    expect(kart!.lastInputSeq).toBe(0);
+
+    // Send three inputs in order; lastInputSeq should advance.
+    await client.send("input", { seq: 1, throttle: 1, brake: 0, steer: 0 });
+    await new Promise((r) => setTimeout(r, 80));
+    expect(kart!.lastInputSeq).toBe(1);
+
+    await client.send("input", { seq: 7, throttle: 1, brake: 0, steer: 0.5 });
+    await new Promise((r) => setTimeout(r, 80));
+    expect(kart!.lastInputSeq).toBe(7);
+
+    // Out-of-order / stale input must NOT regress lastInputSeq.
+    await client.send("input", { seq: 3, throttle: 1, brake: 0, steer: 0 });
+    await new Promise((r) => setTimeout(r, 80));
+    expect(kart!.lastInputSeq).toBe(7);
+
+    await Promise.race([
+      client.leave().catch(() => undefined),
+      new Promise((r) => setTimeout(r, 500)),
+    ]);
+  });
 });

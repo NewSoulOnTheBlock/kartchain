@@ -303,16 +303,19 @@ var _input_send_accumulator: float = 0.0
 # Always send at least every KEEPALIVE seconds so the server knows we're
 # alive and stops moving the kart if we let go of the keys.
 const _KEEPALIVE_SEC: float = 0.25
+# Match the server's 60 Hz tick rate so reconciliation has a fresh input
+# for every server step. Bumped from 30 Hz when the WASM sim landed.
+const _INPUT_SEND_INTERVAL: float = 1.0 / 60.0
 var _last_sent_throttle: float = INF
 var _last_sent_brake: float = INF
 var _last_sent_steer: float = INF
 var _last_send_t: float = 0.0
 func _send_input_if_due() -> void:
 	_input_send_accumulator += get_physics_process_delta_time()
-	if _input_send_accumulator < 1.0 / 30.0:
+	if _input_send_accumulator < _INPUT_SEND_INTERVAL:
 		return
 	_input_send_accumulator = 0.0
-	_last_send_t += 1.0 / 30.0
+	_last_send_t += _INPUT_SEND_INTERVAL
 	var unchanged: bool = (
 		is_equal_approx(_input_throttle, _last_sent_throttle)
 		and is_equal_approx(_input_brake, _last_sent_brake)

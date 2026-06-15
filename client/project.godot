@@ -28,6 +28,7 @@ GameState="*res://scripts/GameState.gd"
 KartCatalog="*res://scripts/KartCatalog.gd"
 TrackLoader="*res://scripts/TrackLoader.gd"
 MusicPlayer="*res://scripts/MusicPlayer.gd"
+WasmSim="*res://scripts/WasmSim.gd"
 
 [display]
 
