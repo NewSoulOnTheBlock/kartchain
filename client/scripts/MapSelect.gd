@@ -2,13 +2,16 @@ extends Control
 ## MapSelect — pick a bundled track for the chosen Quick Race room size.
 ##
 ## Enters this scene after ModeMenu sets:
-##   GameState.pending_max_players  (2 / 4 / 8)
+##   GameState.pending_max_players  (1 = solo vs AI, 2 / 4 / 8 = quick race)
 ## Exits to KartSelect with:
-##   GameState.pending_race_id      = "quick-Np-<trackId>"
+##   GameState.pending_race_id            = "quick-Np-<trackId>" (multiplayer)
+##                                       or "solo-<wallet8>-<unixSeconds>-<trackId>" (solo)
 ##   GameState.pending_entry_fee_lamports = 0
 ##
-## All players who pick the same (size, trackId) end up in the same room
-## thanks to Colyseus's `filterBy(['raceId'])`.
+## Multiplayer: all players who pick the same (size, trackId) end up in the
+##   same room thanks to Colyseus's `filterBy(['raceId'])`.
+## Solo: the unique timestamp+wallet suffix guarantees each session is its
+##   own room; Race.gd fills the empty grid slots with AI opponents.
 
 @onready var cards_row: HBoxContainer = $Margin/VBox/Cards
 @onready var title_label: Label       = $Margin/VBox/Title
@@ -24,7 +27,10 @@ func _ready() -> void:
 	if size <= 0:
 		size = 2
 		GameState.pending_max_players = 2
-	title_label.text = "CHOOSE A MAP   (%dP RACE)" % size
+	if size == 1:
+		title_label.text = "CHOOSE A MAP   (SINGLE PLAYER  —  VS AI)"
+	else:
+		title_label.text = "CHOOSE A MAP   (%dP RACE)" % size
 	_populate()
 
 func _populate() -> void:
@@ -129,10 +135,20 @@ func _find_sshot_in_dir(base: String) -> String:
 	return found
 
 func _on_pick(track_id: String) -> void:
-	var size := max(2, GameState.pending_max_players)
-	# Note: raceId encodes BOTH the room size AND the chosen map so that
-	# Colyseus's filterBy(['raceId']) groups matching picks into the same room.
-	GameState.pending_race_id = "quick-%dp-%s" % [size, track_id]
+	var size := max(1, GameState.pending_max_players)
+	if size == 1:
+		# Solo races get a unique-per-session raceId so two solo players
+		# never collide in the same room. wallet8 + unix-seconds is
+		# overwhelmingly unique even without crypto-grade randomness.
+		# Server-side `_deriveTrackId` recognises the `solo-...-<trackId>`
+		# format and uses the chosen track.
+		var wallet8 := GameState.wallet_pubkey.substr(0, 8) if not GameState.wallet_pubkey.is_empty() else "guest"
+		var stamp := str(int(Time.get_unix_time_from_system()))
+		GameState.pending_race_id = "solo-%s-%s-%s" % [wallet8, stamp, track_id]
+	else:
+		# Note: raceId encodes BOTH the room size AND the chosen map so that
+		# Colyseus's filterBy(['raceId']) groups matching picks into the same room.
+		GameState.pending_race_id = "quick-%dp-%s" % [size, track_id]
 	GameState.pending_entry_fee_lamports = 0
 	get_tree().change_scene_to_file("res://scenes/KartSelect.tscn")
 

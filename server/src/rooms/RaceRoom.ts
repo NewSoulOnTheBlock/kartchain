@@ -478,6 +478,15 @@ export class RaceRoom extends Room<RaceState> {
       return bundled.has(t) ? t : fallback;
     }
 
+    // solo-<wallet8>-<unixSeconds>-<trackId> — Single Player vs AI.
+    // Each solo session gets a unique raceId so two players never collide
+    // in the same room; the trackId is the suffix after the third hyphen.
+    const soloMatch = /^solo-[^-]+-\d+-(.+)$/.exec(raceId);
+    if (soloMatch) {
+      const t = soloMatch[1];
+      return bundled.has(t) ? t : fallback;
+    }
+
     // Legacy quick-Np (no map pick) — rotate by day.
     if (/^quick-\d+p$/.test(raceId) && bundledList.length > 0) {
       const d = new Date();

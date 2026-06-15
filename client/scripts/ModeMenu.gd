@@ -1,6 +1,8 @@
 extends Control
 ## ModeMenu — Single Player / Grand Prix / Quick Race (2P / 4P / 8P).
-## Only Quick Race is wired up; the other two are placeholders.
+## Single Player goes through MapSelect with `pending_max_players = 1` so
+## the server skips the matchmaking wait and Race.gd fills the empty grid
+## slots with AI opponents (see AI_FILL_TARGET in Race.gd).
 
 @onready var single_btn: Button = $Margin/VBox/Modes/SinglePlayer
 @onready var gp_btn: Button     = $Margin/VBox/Modes/GrandPrix
@@ -13,12 +15,13 @@ extends Control
 
 func _ready() -> void:
 	MusicPlayer.play_menu()
-	# Disable the two modes we haven't built yet.
-	single_btn.disabled = true
-	single_btn.text = "SINGLE PLAYER  —  COMING SOON"
+	# Grand Prix is still a placeholder.
 	gp_btn.disabled = true
 	gp_btn.text = "GRAND PRIX  —  COMING SOON"
 
+	single_btn.disabled = false
+	single_btn.text = "SINGLE PLAYER  —  VS AI"
+	single_btn.pressed.connect(_on_single_player)
 	q2_btn.pressed.connect(func(): _start_quick(2))
 	q4_btn.pressed.connect(func(): _start_quick(4))
 	q8_btn.pressed.connect(func(): _start_quick(8))
@@ -32,6 +35,15 @@ func _ready() -> void:
 func _start_quick(size: int) -> void:
 	GameState.pending_max_players = size
 	GameState.pending_race_id = ""           # MapSelect will set this
+	GameState.pending_entry_fee_lamports = 0
+	get_tree().change_scene_to_file("res://scenes/MapSelect.tscn")
+
+# Solo race vs AI. Same flow as Quick Race but with maxPlayers=1 so the
+# server doesn't gate on a full lobby and MapSelect builds a unique-per-
+# session raceId (so two solo players never collide in the same room).
+func _on_single_player() -> void:
+	GameState.pending_max_players = 1
+	GameState.pending_race_id = ""
 	GameState.pending_entry_fee_lamports = 0
 	get_tree().change_scene_to_file("res://scenes/MapSelect.tscn")
 
