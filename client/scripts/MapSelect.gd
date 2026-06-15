@@ -135,15 +135,19 @@ func _find_sshot_in_dir(base: String) -> String:
 	return found
 
 func _on_pick(track_id: String) -> void:
-	var size := max(1, GameState.pending_max_players)
+	var size: int = max(1, GameState.pending_max_players)
 	if size == 1:
 		# Solo races get a unique-per-session raceId so two solo players
 		# never collide in the same room. wallet8 + unix-seconds is
 		# overwhelmingly unique even without crypto-grade randomness.
 		# Server-side `_deriveTrackId` recognises the `solo-...-<trackId>`
 		# format and uses the chosen track.
-		var wallet8 := GameState.wallet_pubkey.substr(0, 8) if not GameState.wallet_pubkey.is_empty() else "guest"
-		var stamp := str(int(Time.get_unix_time_from_system()))
+		var wallet8: String
+		if GameState.wallet_pubkey.is_empty():
+			wallet8 = "guest"
+		else:
+			wallet8 = GameState.wallet_pubkey.substr(0, 8)
+		var stamp: String = str(int(Time.get_unix_time_from_system()))
 		GameState.pending_race_id = "solo-%s-%s-%s" % [wallet8, stamp, track_id]
 	else:
 		# Note: raceId encodes BOTH the room size AND the chosen map so that
