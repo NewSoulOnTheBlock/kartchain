@@ -140,14 +140,17 @@ func send_ready() -> void:
 		return
 	_js_bridge.sendReady()
 
-func send_input(throttle: float, brake: float, steer: float, items: int) -> void:
+func send_input(throttle: float, brake: float, steer: float, items: int) -> int:
 	_input_seq += 1
 	if _js_bridge == null:
-		return
+		return _input_seq
 	# IMPORTANT: dict-passing across GDScript → JavaScriptBridge is unreliable
 	# (often arrives as {} on the JS side). Use the plain-arg variant the
 	# bridge exposes via sendInputArgs(seq, throttle, brake, steer, items).
 	_js_bridge.sendInputArgs(_input_seq, throttle, brake, steer, items)
+	# Return the assigned seq so callers (Kart.gd PvP rollback) can store
+	# (seq, input) pairs in their local input log for later replay.
+	return _input_seq
 
 func use_item(slot: int) -> void:
 	if _js_bridge:

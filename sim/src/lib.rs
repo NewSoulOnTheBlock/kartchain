@@ -100,6 +100,27 @@ pub unsafe extern "C" fn kart_set_pose(
     (*state).vz = 0.0;
 }
 
+/// Set the kart's full state — position + heading + velocity. Used by
+/// PvP reconciliation to rewind the client's WASM to the server's
+/// authoritative state including velocity (so replay of still-in-flight
+/// inputs produces the correct trajectory).
+#[no_mangle]
+pub unsafe extern "C" fn kart_set_state(
+    state: *mut KartState,
+    x: f32, z: f32, yaw: f32,
+    speed: f32, vx: f32, vz: f32,
+) {
+    if state.is_null() {
+        return;
+    }
+    (*state).x = x;
+    (*state).z = z;
+    (*state).yaw = wrap_pi(yaw);
+    (*state).speed = speed;
+    (*state).vx = vx;
+    (*state).vz = vz;
+}
+
 /// Advance the kart's physics by one tick.
 ///
 /// Inputs are clamped to safe ranges inside this function — callers may

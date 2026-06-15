@@ -58,13 +58,13 @@ describeIfBuilt("kart_sim.wasm", () => {
   });
 
   it("returns zeroed state after init", () => {
-    sim1.init(0);
+    sim1.initSlot(0);
     const s = sim1.read(0);
     expect(s).toMatchObject({ x: 0, z: 0, yaw: 0, speed: 0, vx: 0, vz: 0 });
   });
 
   it("accelerates forward on +throttle", () => {
-    sim1.init(0);
+    sim1.initSlot(0);
     for (let i = 0; i < 60; i++) sim1.tick(0, 1.0, 0, 0, 1 / 60);
     const s = sim1.read(0);
     expect(s.speed).toBeGreaterThan(8);
@@ -74,7 +74,7 @@ describeIfBuilt("kart_sim.wasm", () => {
   });
 
   it("rolls to a stop with no input", () => {
-    sim1.init(0);
+    sim1.initSlot(0);
     sim1.setPose(0, 0, 0, 0);
     // Inject a starting speed via accel then coast
     for (let i = 0; i < 30; i++) sim1.tick(0, 1, 0, 0, 1 / 60);
@@ -84,8 +84,8 @@ describeIfBuilt("kart_sim.wasm", () => {
 
   it("is bit-deterministic across fresh module instances", () => {
     // Same input sequence, two independently-loaded modules => identical bytes.
-    sim1.init(0);
-    sim2.init(0);
+    sim1.initSlot(0);
+    sim2.initSlot(0);
     const dt = 1 / 60;
     for (let tick = 0; tick < 600; tick++) {
       const t = Math.sin(tick * 0.05);
@@ -101,7 +101,7 @@ describeIfBuilt("kart_sim.wasm", () => {
 
   it("is bit-deterministic across re-runs in the same instance", () => {
     function runOnSim(s: KartSim) {
-      s.init(0);
+      s.initSlot(0);
       const dt = 1 / 60;
       for (let tick = 0; tick < 1000; tick++) {
         const t = Math.sin(tick * 0.03);
@@ -122,7 +122,7 @@ describeIfBuilt("kart_sim.wasm", () => {
     // (LLVM may reorder f32 ops in Rust opt-level=3 vs V8's JIT in TS);
     // anything larger would mean the gameplay tunings have actually
     // diverged.
-    sim1.init(0);
+    sim1.initSlot(0);
     const ref = {
       x: 0, z: 0, yaw: 0, speed: 0, vx: 0, vz: 0, vy: 0, y: 0,
       // The TS sim only reads/writes these on its Kart Schema; we mimic.
@@ -148,7 +148,7 @@ describeIfBuilt("kart_sim.wasm", () => {
 
   it("handles all 8 kart slots independently without interference", () => {
     // Re-init all slots, drive only slot 3 forward, others must stay still.
-    for (let s = 0; s < 8; s++) sim1.init(s);
+    for (let s = 0; s < 8; s++) sim1.initSlot(s);
     for (let i = 0; i < 60; i++) sim1.tick(3, 1, 0, 0, 1 / 60);
     for (let s = 0; s < 8; s++) {
       const k = sim1.read(s);

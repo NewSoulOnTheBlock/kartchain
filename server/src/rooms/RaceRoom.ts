@@ -216,7 +216,7 @@ export class RaceRoom extends Room<RaceState> {
       const slot = this._allocSlot();
       this._slotByPlayer.set(client.sessionId, slot);
       if (this._sim) {
-        this._sim.init(slot);
+        this._sim.initSlot(slot);
         this._sim.setPose(slot, k.x, k.z, k.yaw);
       }
 

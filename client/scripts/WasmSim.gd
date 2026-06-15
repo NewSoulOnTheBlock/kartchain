@@ -89,6 +89,14 @@ func set_pose(slot: int, x: float, z: float, yaw: float) -> void:
 		return
 	_js_sim.setPose(slot, x, z, yaw)
 
+## Set kart slot full state — pose + velocity. Used by reconciliation
+## to rewind to the server's authoritative state before replaying inputs.
+func set_state(slot: int, x: float, z: float, yaw: float,
+		speed: float, vx: float, vz: float) -> void:
+	if not _ready or _js_sim == null:
+		return
+	_js_sim.setState(slot, x, z, yaw, speed, vx, vz)
+
 ## Advance kart slot one tick; return the new state as a Dictionary.
 ## Returns null when the sim isn't ready (caller should fall back).
 func tick(slot: int, throttle: float, brake: float, steer: float, dt: float):

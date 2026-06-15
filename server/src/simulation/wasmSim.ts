@@ -51,9 +51,15 @@ export type KartView = {
 
 export interface KartSim {
   /** Reset kart `slot` to zeros. */
-  init(slot: number): void;
+  initSlot(slot: number): void;
   /** Set kart `slot` pose; velocities zeroed. */
   setPose(slot: number, x: number, z: number, yaw: number): void;
+  /** Set kart `slot` full state — pose + velocity. Used by reconciliation. */
+  setState(
+    slot: number,
+    x: number, z: number, yaw: number,
+    speed: number, vx: number, vz: number,
+  ): void;
   /** Advance kart `slot` one tick. Inputs are clamped inside the sim. */
   tick(
     slot: number,
@@ -74,6 +80,10 @@ type WasmExports = {
   memory: WebAssembly.Memory;
   kart_init: (ptr: number) => void;
   kart_set_pose: (ptr: number, x: number, z: number, yaw: number) => void;
+  kart_set_state: (
+    ptr: number, x: number, z: number, yaw: number,
+    speed: number, vx: number, vz: number,
+  ) => void;
   kart_tick: (
     ptr: number, throttle: number, brake: number, steer: number, dt: number,
   ) => void;
@@ -152,8 +162,11 @@ export async function loadKartSim(wasmPath?: string): Promise<KartSim> {
 
   return {
     version,
-    init(slot) { exp.kart_init(ptr(slot)); },
+    initSlot(slot) { exp.kart_init(ptr(slot)); },
     setPose(slot, x, z, yaw) { exp.kart_set_pose(ptr(slot), x, z, yaw); },
+    setState(slot, x, z, yaw, speed, vx, vz) {
+      exp.kart_set_state(ptr(slot), x, z, yaw, speed, vx, vz);
+    },
     tick(slot, throttle, brake, steer, dt) {
       exp.kart_tick(ptr(slot), throttle, brake, steer, dt);
     },

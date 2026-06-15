@@ -175,19 +175,197 @@ func _ready() -> void:
 	var skid: TireSkid = TireSkid.new()
 	skid.name = "TireSkid"
 	add_child(skid)
+	# Engage WASM-authoritative physics for the local player kart once the
+	# deterministic kart_sim.wasm finishes loading in the browser. Native
+	# builds (no JS bridge) skip this branch — Godot's VehicleBody3D stays
+	# in charge.
+	if is_local and ai_controller == null:
+		WasmSim.ready_changed.connect(_on_wasm_sim_ready)
+		if WasmSim.is_ready():
+			_on_wasm_sim_ready(true)
+
+# ─── PvP rollback: client-side prediction + reconciliation ────────────
+#
+# When `_wasm_authoritative` is true, the local kart's motion is computed
+# bit-for-bit identically to the server (same kart_sim.wasm on both sides).
+# The flow each physics frame is:
+#
+#   1. Read input (keyboard).
+#   2. Tick our WASM slot with that input. WASM returns the new pose.
+#   3. Apply the pose to this RigidBody3D (which is frozen kinematic so it
+#      accepts the position writes without fighting them).
+#   4. Send the input + seq to the server; push (seq, input, dt) onto the
+#      input log.
+#
+# When server state arrives for our kart (Race.gd calls apply_server_state):
+#
+#   5. Trim input-log entries with seq <= server.lastInputSeq.
+#   6. Rewind the WASM slot to server-reported pose.
+#   7. Replay every still-in-flight log entry through WASM.
+#   8. The resulting WASM pose is the new "current"; the kart visuals lerp
+#      smoothly to it via Race.gd's drift-correction band.
+#
+# Because the WASM is deterministic, steps 6+7 produce the same pose the
+# client already had — unless the network dropped/reordered something, in
+# which case this loop heals the divergence invisibly.
+
+const LOCAL_KART_SLOT: int = 0
+const INPUT_LOG_MAX: int = 240  # 4 seconds at 60Hz; plenty for any sane RTT
+
+class InputLogEntry:
+	var seq: int
+	var throttle: float
+	var brake: float
+	var steer: float
+	var dt: float
+
+var _wasm_authoritative: bool = false
+var _input_log: Array = []  # of InputLogEntry, oldest first
+var _last_dt: float = 1.0 / 60.0
+
+func _on_wasm_sim_ready(ready: bool) -> void:
+	if not ready:
+		return
+	if not is_local or ai_controller != null:
+		return
+	if _wasm_authoritative:
+		return
+	WasmSim.init_slot(LOCAL_KART_SLOT)
+	# Seed WASM with our current pose. Yaw conversion: the visual nose is
+	# along +Z (see Orientation convention header), so the camera/world yaw
+	# we expose to the sim is the yaw of -Z. We use +Z (the visual heading)
+	# as the canonical yaw for WASM consistency with the server, which
+	# spawns karts with yaw=0 facing +Z.
+	var yaw: float = atan2(global_transform.basis.z.x, global_transform.basis.z.z)
+	WasmSim.set_pose(LOCAL_KART_SLOT, global_position.x, global_position.z, yaw)
+	# Freeze the rigid body kinematic — physics no longer drives the kart,
+	# but collisions still report so other karts can bump into us. Position
+	# writes via `global_position` now stick instead of being clobbered by
+	# the integrator each frame.
+	freeze = true
+	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
+	linear_velocity = Vector3.ZERO
+	angular_velocity = Vector3.ZERO
+	_wasm_authoritative = true
+	print("[kart] WASM-authoritative mode engaged for local kart")
 
 func _physics_process(delta: float) -> void:
-	if is_local:
-		_read_local_input()
-		# AI karts don't send network input or boost; keep their loop tight.
-		if ai_controller == null:
-			_tick_boost(delta)
-		_apply_drive(delta)
-		_check_auto_recover(delta)
-		if ai_controller == null:
-			_send_input_if_due()
-	else:
+	if not is_local:
 		_interpolate_to_target(delta)
+		return
+	_last_dt = delta
+	_read_local_input()
+	if _wasm_authoritative:
+		_tick_wasm_authoritative(delta)
+		_send_input_and_log()
+		return
+	# AI or native-build fallback paths use Godot's VehicleBody3D physics.
+	if ai_controller == null:
+		_tick_boost(delta)
+	_apply_drive(delta)
+	_check_auto_recover(delta)
+	if ai_controller == null:
+		_send_input_if_due()
+
+func _tick_wasm_authoritative(delta: float) -> void:
+	var s = WasmSim.tick(LOCAL_KART_SLOT, _input_throttle, _input_brake, _input_steer, delta)
+	if s == null:
+		return
+	_apply_wasm_pose(s)
+
+# Write a WASM-computed pose back onto the kinematic RigidBody3D.
+# Y is owned by Godot — we cast a ray downward against the loaded track
+# collision so the kart stays glued to whatever surface is under it (with
+# a small lift). Falls back to keeping the current Y when there's no
+# ground under us (free-fall off the side of the track).
+func _apply_wasm_pose(s: Dictionary) -> void:
+	var x: float = float(s["x"])
+	var z: float = float(s["z"])
+	var yaw: float = float(s["yaw"])
+	var new_y: float = _query_ground_y(x, z, global_position.y)
+	global_position = Vector3(x, new_y, z)
+	# WASM yaw refers to the +Z visual nose. global_transform basis must
+	# match so the chase cam (Race.gd) and headlights point the right way.
+	var basis := Basis(Vector3.UP, yaw)
+	global_transform = Transform3D(basis, global_position)
+
+const _WASM_GROUND_PROBE_UP: float = 5.0
+const _WASM_GROUND_PROBE_DOWN: float = 50.0
+const _WASM_GROUND_LIFT: float = 0.45
+
+func _query_ground_y(x: float, z: float, current_y: float) -> float:
+	var space = get_world_3d().direct_space_state
+	if space == null:
+		return current_y
+	var from := Vector3(x, current_y + _WASM_GROUND_PROBE_UP, z)
+	var to := Vector3(x, current_y - _WASM_GROUND_PROBE_DOWN, z)
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.exclude = [self]
+	query.collide_with_areas = false
+	query.collide_with_bodies = true
+	var hit: Dictionary = space.intersect_ray(query)
+	if hit.has("position"):
+		return float(hit.position.y) + _WASM_GROUND_LIFT
+	return current_y  # no ground found; preserve current Y (free-fall to DEATH_FLOOR_Y in Race.gd)
+
+func _send_input_and_log() -> void:
+	# Send every physics tick so the server's reconciliation gets fresh
+	# data; the rate limiter inside NetworkClient (unchanged from the
+	# 30/60 Hz path) handles dedup and keepalive.
+	var seq: int = NetworkClient.send_input(_input_throttle, _input_brake, _input_steer, 0)
+	if seq <= 0:
+		return  # bridge wasn't ready yet
+	var e := InputLogEntry.new()
+	e.seq = seq
+	e.throttle = _input_throttle
+	e.brake = _input_brake
+	e.steer = _input_steer
+	e.dt = _last_dt
+	_input_log.append(e)
+	# Hard cap so the log can't grow unbounded if the server stops acking.
+	while _input_log.size() > INPUT_LOG_MAX:
+		_input_log.pop_front()
+
+## Reconcile the local kart's WASM state against the server's authoritative
+## pose. Called by Race.gd whenever a fresh race:state arrives for our kart.
+##
+## Algorithm:
+##   1. Drop any input-log entries with seq <= last_input_seq (server has
+##      already processed them; their effect is baked into server_pose).
+##   2. Reset WASM to server_pose.
+##   3. Re-tick WASM over every remaining log entry.
+##   4. Stamp the resulting WASM pose onto this body. Race.gd's
+##      drift-correction band smooths the visual lerp.
+##
+## When prediction was already correct (the common case), steps 2+3 produce
+## a pose identical to the one we already had — no visible change.
+##
+## When wrong (packet loss, server clamped an out-of-range input, etc.),
+## this is the moment we get back in sync without snapping.
+##
+## Args:
+##   server_x, server_z, server_yaw — authoritative pose
+##   server_speed, server_vx, server_vz — authoritative velocity
+##   last_input_seq — highest input seq the server has accepted from us
+func apply_server_state(
+		server_x: float, server_z: float, server_yaw: float,
+		server_speed: float, server_vx: float, server_vz: float,
+		last_input_seq: int) -> void:
+	if not _wasm_authoritative:
+		return
+	# 1. Trim acked inputs from the log.
+	while not _input_log.is_empty() and (_input_log[0] as InputLogEntry).seq <= last_input_seq:
+		_input_log.pop_front()
+	# 2. Rewind WASM to authoritative server state (including velocity).
+	WasmSim.set_state(LOCAL_KART_SLOT, server_x, server_z, server_yaw, server_speed, server_vx, server_vz)
+	# 3. Replay the still-in-flight inputs through WASM.
+	for entry in _input_log:
+		var e: InputLogEntry = entry
+		WasmSim.tick(LOCAL_KART_SLOT, e.throttle, e.brake, e.steer, e.dt)
+	# 4. Read the corrected pose and apply it.
+	var s = WasmSim.read(LOCAL_KART_SLOT)
+	if s != null:
+		_apply_wasm_pose(s)
 
 func is_boosting() -> bool:
 	return _boost_remaining_sec > 0.0

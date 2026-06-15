@@ -200,6 +200,11 @@ func _snap_camera_behind_kart() -> void:
 #   drift >= HARD_SNAP_M       -> hard snap (player teleported or cheated)
 #
 # In horizontal plane only (Y left to Godot's gravity + track collision).
+#
+# WHEN WASM-AUTHORITATIVE MODE IS ON for the local kart (PvP rollback path,
+# browser only), this function is bypassed entirely — the kart itself does
+# input-log replay reconciliation in apply_server_state(), which is
+# mathematically exact (same .wasm both sides) instead of a visual lerp.
 const SOFT_DRIFT_M:     float = 1.0
 const HARD_SNAP_M:      float = 12.0
 const RECONCILE_LERP_S: float = 0.30
@@ -209,7 +214,15 @@ var _reconcile_target: Vector3 = Vector3.ZERO
 var _reconcile_yaw_target: float = 0.0
 var _reconcile_t_remaining: float = 0.0
 
-func _reconcile_local_kart(node: VehicleBody3D, target_world: Vector3, target_yaw: float) -> void:
+func _reconcile_local_kart(node: VehicleBody3D, target_world: Vector3, target_yaw: float, last_input_seq: int, server_speed: float, server_vx: float, server_vz: float) -> void:
+	# Pure-WASM PvP path: the kart owns its own reconciliation via
+	# input-log replay. Hand it the authoritative state + ack and bail.
+	if "apply_server_state" in node and "_wasm_authoritative" in node and node._wasm_authoritative:
+		node.apply_server_state(target_world.x, target_world.z, target_yaw,
+				server_speed, server_vx, server_vz, last_input_seq)
+		_reconcile_t_remaining = 0.0
+		return
+
 	# Compare only the horizontal plane — Y is owned by Godot physics
 	# (gravity + STK track collision; the WASM sim is 2D today).
 	var here := Vector2(node.global_position.x, node.global_position.z)
@@ -395,7 +408,11 @@ func _on_race_state(state: Dictionary) -> void:
 		if node == local_kart:
 			var phase := String(state.get("phase", "waiting"))
 			if phase == "racing":
-				_reconcile_local_kart(node, target_world, yaw)
+				var last_seq := int(k_data.get("lastInputSeq", 0))
+				var s_speed := float(k_data.get("speed", 0.0))
+				var s_vx := float(k_data.get("vx", 0.0))
+				var s_vz := float(k_data.get("vz", 0.0))
+				_reconcile_local_kart(node, target_world, yaw, last_seq, s_speed, s_vx, s_vz)
 		else:
 			node.set_net_target(target_world, yaw)
 		if pid == local_player_id:
