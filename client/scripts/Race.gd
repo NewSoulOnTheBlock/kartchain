@@ -384,11 +384,15 @@ func _on_race_state(state: Dictionary) -> void:
 			float(state.get("spawnZ", 0.0)))
 	var has_override := _spawn_override_world != Vector3.INF
 	# Spawn anchor in world coords. With a broadcast override (player set it
-	# from the ground), use it as-is. Without, fall back to track defaults
-	# which assume a small Y lift.
+	# from the ground), use it as-is. Without an override, prefer the FIRST
+	# racing-line quad (guaranteed to sit on the actual racing surface — see
+	# RacingLine._build); fall back to TrackLoader.spawn_offset only if the
+	# racing line failed to parse.
 	var anchor: Vector3 = Vector3.ZERO
 	if has_override:
 		anchor = _spawn_override_world
+	elif _racing_line != null and _racing_line.curve != null and _racing_line.curve.point_count > 0:
+		anchor = _racing_line.curve.get_point_position(0)
 	elif _loaded_track_id != "":
 		anchor = TrackLoader.spawn_offset(_loaded_track_id)
 	# Sort karts by playerId so every client builds the same grid order.
@@ -407,7 +411,7 @@ func _on_race_state(state: Dictionary) -> void:
 		# plane OR loaded STK track mesh — both have collision). Prevents karts
 		# spawning 2+ m in the air and free-falling onto the track.
 		if node == null:
-			var ground_y := _ground_y_at(spawn_world)
+			var ground_y := _ground_y_at_near(spawn_world, anchor.y)
 			if ground_y > -999.0:
 				spawn_world.y = ground_y + TrackLoader.GROUND_LIFT
 			node = _spawn_kart(pid, k_data)
@@ -478,6 +482,45 @@ func _ground_y_at(world_pos: Vector3) -> float:
 	var hit: Dictionary = space.intersect_ray(query)
 	if hit.has("position"):
 		return float(hit.position.y)
+	return -1000.0
+
+## Variant of _ground_y_at that ignores ceilings/canopies far above the
+## expected anchor Y. The plain version raycasts from y+200, which on rich
+## STK tracks (cocoa_temple, hacienda) hits temple roofs / jungle canopies
+## above the racing surface and snaps the spawning kart onto the ROOF.
+## VehicleBody3D's wheel suspension (max_force 8000) then ejects the kart
+## skyward because its chassis box intersects the new ceiling mesh.
+##
+## Strategy:
+##  1. Start the ray only 3 m above the expected anchor (the racing-line
+##     point) so we look at the racing surface, not the sky.
+##  2. If the first hit is more than `MAX_GROUND_RISE_ABOVE_ANCHOR` above
+##     the anchor, treat it as a ceiling and walk downward in `STEP` m
+##     increments until we find a surface near the anchor (or give up).
+const MAX_GROUND_RISE_ABOVE_ANCHOR: float = 4.0
+const GROUND_STEP_DOWN: float = 2.0
+const GROUND_MAX_STEPS: int = 30
+func _ground_y_at_near(world_pos: Vector3, anchor_y: float) -> float:
+	var space := get_world_3d().direct_space_state
+	if space == null:
+		return -1000.0
+	var ray_top: float = anchor_y + 3.0
+	for step in GROUND_MAX_STEPS:
+		var from := Vector3(world_pos.x, ray_top, world_pos.z)
+		var to   := Vector3(world_pos.x, ray_top - 500.0, world_pos.z)
+		var query := PhysicsRayQueryParameters3D.create(from, to)
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		var hit: Dictionary = space.intersect_ray(query)
+		if not hit.has("position"):
+			return -1000.0
+		var y: float = float(hit.position.y)
+		# Acceptable: at or below anchor (real ground), or just above (a hill).
+		if y <= anchor_y + MAX_GROUND_RISE_ABOVE_ANCHOR:
+			return y
+		# Otherwise the ray pierced a roof/canopy — start a new ray BELOW
+		# that hit and try again.
+		ray_top = y - 0.1
 	return -1000.0
 
 # Load and add the STK track scene. Hides the placeholder ground/sky on success.
@@ -568,7 +611,14 @@ func _spawn_ai_kart(index: int, anchor: Vector3, fwd: Vector3, grid: Vector3) ->
 	# Place the AI on the grid behind the player, facing the racing-line tangent.
 	var right: Vector3 = fwd.cross(Vector3.UP).normalized()
 	var spawn_world: Vector3 = anchor + (right * grid.x) + (fwd * -abs(grid.z))
-	spawn_world.y += TrackLoader.GROUND_LIFT
+	# Snap to the actual ground under this grid slot — without this AI karts
+	# sit on the racing-line Y (which is lifted 0.4m off the road in
+	# RacingLine._build) and then either float or eject through the road.
+	var ground_y := _ground_y_at_near(spawn_world, anchor.y)
+	if ground_y > -999.0:
+		spawn_world.y = ground_y + TrackLoader.GROUND_LIFT
+	else:
+		spawn_world.y += TrackLoader.GROUND_LIFT
 	node.global_position = spawn_world
 	node.look_at(spawn_world + fwd, Vector3.UP)
 	# Cancel the look_at's rotation around Y if our model is +Z-nose (per

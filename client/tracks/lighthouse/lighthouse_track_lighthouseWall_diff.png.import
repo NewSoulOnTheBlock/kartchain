@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dw5usn7532wy1"
-path="res://.godot/imported/lighthouse_track_lighthouseWall_diff.png-d2492a766ae2330a64e607fddb2119ec.ctex"
+path.s3tc="res://.godot/imported/lighthouse_track_lighthouseWall_diff.png-d2492a766ae2330a64e607fddb2119ec.s3tc.ctex"
+path.etc2="res://.godot/imported/lighthouse_track_lighthouseWall_diff.png-d2492a766ae2330a64e607fddb2119ec.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "8ab131d2ed396b5cffccf020e5e34df7"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/lighthouse/lighthouse_track_lighthouseWall_diff.png"
-dest_files=["res://.godot/imported/lighthouse_track_lighthouseWall_diff.png-d2492a766ae2330a64e607fddb2119ec.ctex"]
+dest_files=["res://.godot/imported/lighthouse_track_lighthouseWall_diff.png-d2492a766ae2330a64e607fddb2119ec.s3tc.ctex", "res://.godot/imported/lighthouse_track_lighthouseWall_diff.png-d2492a766ae2330a64e607fddb2119ec.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

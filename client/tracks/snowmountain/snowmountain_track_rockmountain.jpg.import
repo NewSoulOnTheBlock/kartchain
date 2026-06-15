@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://c77t4ksxkcn4t"
-path="res://.godot/imported/snowmountain_track_rockmountain.jpg-c98800cbaab85a479728265eb1f918f9.ctex"
+path.s3tc="res://.godot/imported/snowmountain_track_rockmountain.jpg-c98800cbaab85a479728265eb1f918f9.s3tc.ctex"
+path.etc2="res://.godot/imported/snowmountain_track_rockmountain.jpg-c98800cbaab85a479728265eb1f918f9.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f7939b6896aa4cbde6bfd93bace9f62e"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/snowmountain/snowmountain_track_rockmountain.jpg"
-dest_files=["res://.godot/imported/snowmountain_track_rockmountain.jpg-c98800cbaab85a479728265eb1f918f9.ctex"]
+dest_files=["res://.godot/imported/snowmountain_track_rockmountain.jpg-c98800cbaab85a479728265eb1f918f9.s3tc.ctex", "res://.godot/imported/snowmountain_track_rockmountain.jpg-c98800cbaab85a479728265eb1f918f9.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

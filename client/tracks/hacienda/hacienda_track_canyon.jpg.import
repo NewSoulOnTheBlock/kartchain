@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dyp4laucde3dq"
-path="res://.godot/imported/hacienda_track_canyon.jpg-f3c9d3222c2761fe77d8cbb10a3882a4.ctex"
+path.s3tc="res://.godot/imported/hacienda_track_canyon.jpg-f3c9d3222c2761fe77d8cbb10a3882a4.s3tc.ctex"
+path.etc2="res://.godot/imported/hacienda_track_canyon.jpg-f3c9d3222c2761fe77d8cbb10a3882a4.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "d26b18bffa1ede6c4ddeb6f3aed4dd60"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/hacienda/hacienda_track_canyon.jpg"
-dest_files=["res://.godot/imported/hacienda_track_canyon.jpg-f3c9d3222c2761fe77d8cbb10a3882a4.ctex"]
+dest_files=["res://.godot/imported/hacienda_track_canyon.jpg-f3c9d3222c2761fe77d8cbb10a3882a4.s3tc.ctex", "res://.godot/imported/hacienda_track_canyon.jpg-f3c9d3222c2761fe77d8cbb10a3882a4.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

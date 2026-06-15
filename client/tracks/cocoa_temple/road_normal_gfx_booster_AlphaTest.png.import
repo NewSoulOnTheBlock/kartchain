@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://5pxikgogm0gc"
-path="res://.godot/imported/road_normal_gfx_booster_AlphaTest.png-9d171d002e1e536eead35a6eedb3addc.ctex"
+path.s3tc="res://.godot/imported/road_normal_gfx_booster_AlphaTest.png-9d171d002e1e536eead35a6eedb3addc.s3tc.ctex"
+path.etc2="res://.godot/imported/road_normal_gfx_booster_AlphaTest.png-9d171d002e1e536eead35a6eedb3addc.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0d856b05352eda87f81a18b6ac48daef"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/cocoa_temple/road_normal_gfx_booster_AlphaTest.png"
-dest_files=["res://.godot/imported/road_normal_gfx_booster_AlphaTest.png-9d171d002e1e536eead35a6eedb3addc.ctex"]
+dest_files=["res://.godot/imported/road_normal_gfx_booster_AlphaTest.png-9d171d002e1e536eead35a6eedb3addc.s3tc.ctex", "res://.godot/imported/road_normal_gfx_booster_AlphaTest.png-9d171d002e1e536eead35a6eedb3addc.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

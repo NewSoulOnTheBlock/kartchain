@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://baagd7032pjv6"
-path="res://.godot/imported/lighthouse_track_stktex_waterLily_a.png-4bdc0ca24191c6c42598bfd5e5cf39a9.ctex"
+path.s3tc="res://.godot/imported/lighthouse_track_stktex_waterLily_a.png-4bdc0ca24191c6c42598bfd5e5cf39a9.s3tc.ctex"
+path.etc2="res://.godot/imported/lighthouse_track_stktex_waterLily_a.png-4bdc0ca24191c6c42598bfd5e5cf39a9.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "c91d4afce5e49ef6dd705fb759cc1fbf"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/lighthouse/lighthouse_track_stktex_waterLily_a.png"
-dest_files=["res://.godot/imported/lighthouse_track_stktex_waterLily_a.png-4bdc0ca24191c6c42598bfd5e5cf39a9.ctex"]
+dest_files=["res://.godot/imported/lighthouse_track_stktex_waterLily_a.png-4bdc0ca24191c6c42598bfd5e5cf39a9.s3tc.ctex", "res://.godot/imported/lighthouse_track_stktex_waterLily_a.png-4bdc0ca24191c6c42598bfd5e5cf39a9.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

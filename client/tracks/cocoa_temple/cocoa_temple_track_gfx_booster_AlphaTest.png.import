@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://smsr7uug8el3"
-path="res://.godot/imported/cocoa_temple_track_gfx_booster_AlphaTest.png-395250c90e5af5b97210bfafa8503c17.ctex"
+path.s3tc="res://.godot/imported/cocoa_temple_track_gfx_booster_AlphaTest.png-395250c90e5af5b97210bfafa8503c17.s3tc.ctex"
+path.etc2="res://.godot/imported/cocoa_temple_track_gfx_booster_AlphaTest.png-395250c90e5af5b97210bfafa8503c17.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0d856b05352eda87f81a18b6ac48daef"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/cocoa_temple/cocoa_temple_track_gfx_booster_AlphaTest.png"
-dest_files=["res://.godot/imported/cocoa_temple_track_gfx_booster_AlphaTest.png-395250c90e5af5b97210bfafa8503c17.ctex"]
+dest_files=["res://.godot/imported/cocoa_temple_track_gfx_booster_AlphaTest.png-395250c90e5af5b97210bfafa8503c17.s3tc.ctex", "res://.godot/imported/cocoa_temple_track_gfx_booster_AlphaTest.png-395250c90e5af5b97210bfafa8503c17.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dn4gws3sogv78"
-path="res://.godot/imported/hacienda_track_yellow_dirt.jpg-8f7ac30c7ce5a1eca5b94c7c2a99a7f9.ctex"
+path.s3tc="res://.godot/imported/hacienda_track_yellow_dirt.jpg-8f7ac30c7ce5a1eca5b94c7c2a99a7f9.s3tc.ctex"
+path.etc2="res://.godot/imported/hacienda_track_yellow_dirt.jpg-8f7ac30c7ce5a1eca5b94c7c2a99a7f9.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "0b94f6569a737fa342a4b18331fffb8d"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/hacienda/hacienda_track_yellow_dirt.jpg"
-dest_files=["res://.godot/imported/hacienda_track_yellow_dirt.jpg-8f7ac30c7ce5a1eca5b94c7c2a99a7f9.ctex"]
+dest_files=["res://.godot/imported/hacienda_track_yellow_dirt.jpg-8f7ac30c7ce5a1eca5b94c7c2a99a7f9.s3tc.ctex", "res://.godot/imported/hacienda_track_yellow_dirt.jpg-8f7ac30c7ce5a1eca5b94c7c2a99a7f9.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

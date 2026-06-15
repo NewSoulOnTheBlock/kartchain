@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dn8fcqap5ho8x"
-path="res://.godot/imported/big_jump_pad_reverse_stktex_generic_WoodD.png-c17f70a91dbb03a1d6633b9c9631e388.ctex"
+path.s3tc="res://.godot/imported/big_jump_pad_reverse_stktex_generic_WoodD.png-c17f70a91dbb03a1d6633b9c9631e388.s3tc.ctex"
+path.etc2="res://.godot/imported/big_jump_pad_reverse_stktex_generic_WoodD.png-c17f70a91dbb03a1d6633b9c9631e388.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "165ccf8f4fbd86c70bbcce48c3476fad"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/cocoa_temple/big_jump_pad_reverse_stktex_generic_WoodD.png"
-dest_files=["res://.godot/imported/big_jump_pad_reverse_stktex_generic_WoodD.png-c17f70a91dbb03a1d6633b9c9631e388.ctex"]
+dest_files=["res://.godot/imported/big_jump_pad_reverse_stktex_generic_WoodD.png-c17f70a91dbb03a1d6633b9c9631e388.s3tc.ctex", "res://.godot/imported/big_jump_pad_reverse_stktex_generic_WoodD.png-c17f70a91dbb03a1d6633b9c9631e388.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

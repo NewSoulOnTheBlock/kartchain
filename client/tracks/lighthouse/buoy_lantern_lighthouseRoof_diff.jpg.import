@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bpq1dkslkbqjy"
-path="res://.godot/imported/buoy_lantern_lighthouseRoof_diff.jpg-a5c9c9bf5d3ed82c57bd77f804549f7a.ctex"
+path.s3tc="res://.godot/imported/buoy_lantern_lighthouseRoof_diff.jpg-a5c9c9bf5d3ed82c57bd77f804549f7a.s3tc.ctex"
+path.etc2="res://.godot/imported/buoy_lantern_lighthouseRoof_diff.jpg-a5c9c9bf5d3ed82c57bd77f804549f7a.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "308a68f1407d802aec70e3d9441a0ea0"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/lighthouse/buoy_lantern_lighthouseRoof_diff.jpg"
-dest_files=["res://.godot/imported/buoy_lantern_lighthouseRoof_diff.jpg-a5c9c9bf5d3ed82c57bd77f804549f7a.ctex"]
+dest_files=["res://.godot/imported/buoy_lantern_lighthouseRoof_diff.jpg-a5c9c9bf5d3ed82c57bd77f804549f7a.s3tc.ctex", "res://.godot/imported/buoy_lantern_lighthouseRoof_diff.jpg-a5c9c9bf5d3ed82c57bd77f804549f7a.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

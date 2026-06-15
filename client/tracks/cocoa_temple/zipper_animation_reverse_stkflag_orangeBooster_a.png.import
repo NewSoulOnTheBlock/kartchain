@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://da07n31b124ej"
-path="res://.godot/imported/zipper_animation_reverse_stkflag_orangeBooster_a.png-2e5fd13e649378aa377056ee9c14f9cb.ctex"
+path.s3tc="res://.godot/imported/zipper_animation_reverse_stkflag_orangeBooster_a.png-2e5fd13e649378aa377056ee9c14f9cb.s3tc.ctex"
+path.etc2="res://.godot/imported/zipper_animation_reverse_stkflag_orangeBooster_a.png-2e5fd13e649378aa377056ee9c14f9cb.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "870d741aa9547eedb40abf588818658d"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/cocoa_temple/zipper_animation_reverse_stkflag_orangeBooster_a.png"
-dest_files=["res://.godot/imported/zipper_animation_reverse_stkflag_orangeBooster_a.png-2e5fd13e649378aa377056ee9c14f9cb.ctex"]
+dest_files=["res://.godot/imported/zipper_animation_reverse_stkflag_orangeBooster_a.png-2e5fd13e649378aa377056ee9c14f9cb.s3tc.ctex", "res://.godot/imported/zipper_animation_reverse_stkflag_orangeBooster_a.png-2e5fd13e649378aa377056ee9c14f9cb.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

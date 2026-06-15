@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://debl7o8xqy1d2"
-path="res://.godot/imported/snowmountain_track_concrete.png-bce59e28f7cc9855e8b090c6314159cf.ctex"
+path.s3tc="res://.godot/imported/snowmountain_track_concrete.png-bce59e28f7cc9855e8b090c6314159cf.s3tc.ctex"
+path.etc2="res://.godot/imported/snowmountain_track_concrete.png-bce59e28f7cc9855e8b090c6314159cf.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "041fa89c4c5fe9c6fe1802e311beb583"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/snowmountain/snowmountain_track_concrete.png"
-dest_files=["res://.godot/imported/snowmountain_track_concrete.png-bce59e28f7cc9855e8b090c6314159cf.ctex"]
+dest_files=["res://.godot/imported/snowmountain_track_concrete.png-bce59e28f7cc9855e8b090c6314159cf.s3tc.ctex", "res://.godot/imported/snowmountain_track_concrete.png-bce59e28f7cc9855e8b090c6314159cf.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

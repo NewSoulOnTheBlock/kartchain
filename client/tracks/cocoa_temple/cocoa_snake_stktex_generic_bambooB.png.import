@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d1jcdooxcocw3"
-path="res://.godot/imported/cocoa_snake_stktex_generic_bambooB.png-8e83eaece2c48758f061b90c13bbe94d.ctex"
+path.s3tc="res://.godot/imported/cocoa_snake_stktex_generic_bambooB.png-8e83eaece2c48758f061b90c13bbe94d.s3tc.ctex"
+path.etc2="res://.godot/imported/cocoa_snake_stktex_generic_bambooB.png-8e83eaece2c48758f061b90c13bbe94d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "a53b8571d8f3b33691ea19430b3c3694"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/cocoa_temple/cocoa_snake_stktex_generic_bambooB.png"
-dest_files=["res://.godot/imported/cocoa_snake_stktex_generic_bambooB.png-8e83eaece2c48758f061b90c13bbe94d.ctex"]
+dest_files=["res://.godot/imported/cocoa_snake_stktex_generic_bambooB.png-8e83eaece2c48758f061b90c13bbe94d.s3tc.ctex", "res://.godot/imported/cocoa_snake_stktex_generic_bambooB.png-8e83eaece2c48758f061b90c13bbe94d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

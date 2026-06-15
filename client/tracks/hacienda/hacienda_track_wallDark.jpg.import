@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dr037h4ckvtqy"
-path="res://.godot/imported/hacienda_track_wallDark.jpg-6995c92c41578beed294c813b2b3dd67.ctex"
+path.s3tc="res://.godot/imported/hacienda_track_wallDark.jpg-6995c92c41578beed294c813b2b3dd67.s3tc.ctex"
+path.etc2="res://.godot/imported/hacienda_track_wallDark.jpg-6995c92c41578beed294c813b2b3dd67.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "defa2f894fb1f70d66c71049dac0d8d2"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/hacienda/hacienda_track_wallDark.jpg"
-dest_files=["res://.godot/imported/hacienda_track_wallDark.jpg-6995c92c41578beed294c813b2b3dd67.ctex"]
+dest_files=["res://.godot/imported/hacienda_track_wallDark.jpg-6995c92c41578beed294c813b2b3dd67.s3tc.ctex", "res://.godot/imported/hacienda_track_wallDark.jpg-6995c92c41578beed294c813b2b3dd67.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

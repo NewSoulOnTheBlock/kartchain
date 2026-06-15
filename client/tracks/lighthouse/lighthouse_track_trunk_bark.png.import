@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://duhax6fdfltuw"
-path="res://.godot/imported/lighthouse_track_trunk_bark.png-c3f62db35ee9bb58b5291c8d146c3c1a.ctex"
+path.s3tc="res://.godot/imported/lighthouse_track_trunk_bark.png-c3f62db35ee9bb58b5291c8d146c3c1a.s3tc.ctex"
+path.etc2="res://.godot/imported/lighthouse_track_trunk_bark.png-c3f62db35ee9bb58b5291c8d146c3c1a.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "48597be4fa91a140a4ae0fbe2693b91c"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/lighthouse/lighthouse_track_trunk_bark.png"
-dest_files=["res://.godot/imported/lighthouse_track_trunk_bark.png-c3f62db35ee9bb58b5291c8d146c3c1a.ctex"]
+dest_files=["res://.godot/imported/lighthouse_track_trunk_bark.png-c3f62db35ee9bb58b5291c8d146c3c1a.s3tc.ctex", "res://.godot/imported/lighthouse_track_trunk_bark.png-c3f62db35ee9bb58b5291c8d146c3c1a.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

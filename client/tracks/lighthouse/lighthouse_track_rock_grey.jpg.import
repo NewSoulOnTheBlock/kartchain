@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://duotscfq5ljhp"
-path="res://.godot/imported/lighthouse_track_rock_grey.jpg-c57144dc569aa3001e3a5310cfcde612.ctex"
+path.s3tc="res://.godot/imported/lighthouse_track_rock_grey.jpg-c57144dc569aa3001e3a5310cfcde612.s3tc.ctex"
+path.etc2="res://.godot/imported/lighthouse_track_rock_grey.jpg-c57144dc569aa3001e3a5310cfcde612.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "3932d3205e74a7bb8a27c45b2476aa83"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/lighthouse/lighthouse_track_rock_grey.jpg"
-dest_files=["res://.godot/imported/lighthouse_track_rock_grey.jpg-c57144dc569aa3001e3a5310cfcde612.ctex"]
+dest_files=["res://.godot/imported/lighthouse_track_rock_grey.jpg-c57144dc569aa3001e3a5310cfcde612.s3tc.ctex", "res://.godot/imported/lighthouse_track_rock_grey.jpg-c57144dc569aa3001e3a5310cfcde612.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

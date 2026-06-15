@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b7dir478mw1js"
-path="res://.godot/imported/cocoa_temple_track_stk_generic_grassB.png-78607426e088239d79362857116d599e.ctex"
+path.s3tc="res://.godot/imported/cocoa_temple_track_stk_generic_grassB.png-78607426e088239d79362857116d599e.s3tc.ctex"
+path.etc2="res://.godot/imported/cocoa_temple_track_stk_generic_grassB.png-78607426e088239d79362857116d599e.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "b471d42a50d664c88e7b087be75e51cd"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/cocoa_temple/cocoa_temple_track_stk_generic_grassB.png"
-dest_files=["res://.godot/imported/cocoa_temple_track_stk_generic_grassB.png-78607426e088239d79362857116d599e.ctex"]
+dest_files=["res://.godot/imported/cocoa_temple_track_stk_generic_grassB.png-78607426e088239d79362857116d599e.s3tc.ctex", "res://.godot/imported/cocoa_temple_track_stk_generic_grassB.png-78607426e088239d79362857116d599e.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

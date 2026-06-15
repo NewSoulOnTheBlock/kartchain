@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://deq0yhrd5nr2m"
-path="res://.godot/imported/lighthouse_track_trail_diff.png-bd72add198dd1e14a6137b7e05712b1d.ctex"
+path.s3tc="res://.godot/imported/lighthouse_track_trail_diff.png-bd72add198dd1e14a6137b7e05712b1d.s3tc.ctex"
+path.etc2="res://.godot/imported/lighthouse_track_trail_diff.png-bd72add198dd1e14a6137b7e05712b1d.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "9d70ba2d9f792da8b2df6c5e24631867"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/lighthouse/lighthouse_track_trail_diff.png"
-dest_files=["res://.godot/imported/lighthouse_track_trail_diff.png-bd72add198dd1e14a6137b7e05712b1d.ctex"]
+dest_files=["res://.godot/imported/lighthouse_track_trail_diff.png-bd72add198dd1e14a6137b7e05712b1d.s3tc.ctex", "res://.godot/imported/lighthouse_track_trail_diff.png-bd72add198dd1e14a6137b7e05712b1d.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

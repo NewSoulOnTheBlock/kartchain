@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cjh8ccwhbgndc"
-path="res://.godot/imported/hacienda_track_hacienda_roof.jpg-0240ce9f6579e5a13e2e9a4327bacd48.ctex"
+path.s3tc="res://.godot/imported/hacienda_track_hacienda_roof.jpg-0240ce9f6579e5a13e2e9a4327bacd48.s3tc.ctex"
+path.etc2="res://.godot/imported/hacienda_track_hacienda_roof.jpg-0240ce9f6579e5a13e2e9a4327bacd48.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "ac8ad9e5833695a42cdaf28db2577b77"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/hacienda/hacienda_track_hacienda_roof.jpg"
-dest_files=["res://.godot/imported/hacienda_track_hacienda_roof.jpg-0240ce9f6579e5a13e2e9a4327bacd48.ctex"]
+dest_files=["res://.godot/imported/hacienda_track_hacienda_roof.jpg-0240ce9f6579e5a13e2e9a4327bacd48.s3tc.ctex", "res://.godot/imported/hacienda_track_hacienda_roof.jpg-0240ce9f6579e5a13e2e9a4327bacd48.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

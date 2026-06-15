@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://clutby0ice028"
-path="res://.godot/imported/lighthouse_track_fence_chain.png-456897dc82360f996708d3d3ce7be350.ctex"
+path.s3tc="res://.godot/imported/lighthouse_track_fence_chain.png-456897dc82360f996708d3d3ce7be350.s3tc.ctex"
+path.etc2="res://.godot/imported/lighthouse_track_fence_chain.png-456897dc82360f996708d3d3ce7be350.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "5baf2ee3e9ea62c763e440f5f53b1d77"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/lighthouse/lighthouse_track_fence_chain.png"
-dest_files=["res://.godot/imported/lighthouse_track_fence_chain.png-456897dc82360f996708d3d3ce7be350.ctex"]
+dest_files=["res://.godot/imported/lighthouse_track_fence_chain.png-456897dc82360f996708d3d3ce7be350.s3tc.ctex", "res://.godot/imported/lighthouse_track_fence_chain.png-456897dc82360f996708d3d3ce7be350.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0
