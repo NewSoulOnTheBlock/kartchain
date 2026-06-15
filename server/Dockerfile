@@ -43,12 +43,26 @@ COPY server ./server
 RUN pnpm --filter @kartchain/server run build:ts
 
 # ── runtime stage ─────────────────────────────────────────────────────────
-FROM node:20-bookworm-slim AS runtime
+# Base image swapped to the Kasm STK workspace so the runtime container ships
+# with the full SuperTuxKart desktop alongside the Colyseus server. The base
+# is Ubuntu-derived and ships *without* Node, so we install Node 20 + pnpm
+# below before running the server.
+FROM kasmweb/super-tux-kart:1.19.0-rolling-daily AS runtime
+USER root
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=2567
 
-RUN corepack enable && corepack prepare pnpm@9.12.0 --activate
+# Install Node.js 20 (NodeSource) + enable pnpm via corepack. kasmweb images
+# are Ubuntu-based; apt is available but the Kasm entrypoint runs as kasm_user
+# so we must `USER root` before installing system packages.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends curl ca-certificates gnupg \
+ && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+ && apt-get install -y --no-install-recommends nodejs \
+ && rm -rf /var/lib/apt/lists/* \
+ && corepack enable \
+ && corepack prepare pnpm@9.12.0 --activate
 
 # Bring just what we need to run.
 COPY --from=build /app/package.json /app/pnpm-workspace.yaml /app/pnpm-lock.yaml ./
@@ -64,4 +78,7 @@ COPY --from=sim-builder \
 
 EXPOSE 2567
 
+# Reset the Kasm base's ENTRYPOINT (VNC desktop bootstrap scripts) so the
+# Node CMD below actually runs as PID 1 in the container.
+ENTRYPOINT []
 CMD ["node", "server/dist/index.js"]

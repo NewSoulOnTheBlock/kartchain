@@ -8,6 +8,7 @@ client
 web/node_modules
 web/.next
 web/public/game
+server/node_modules
 assets-import
 docs
 *.log
