@@ -14,8 +14,13 @@ docs
 *.md
 .env
 .env.*
-# Keep these — we want the server source + workspace files
+# Rust build artifacts — the sim-builder Docker stage rebuilds them from
+# source, so don't ship our local (possibly stale, possibly Windows-only)
+# target/ into the build context.
+sim/target
+# Keep these — we want the server source + workspace files + sim source
 !server
+!sim
 !package.json
 !pnpm-workspace.yaml
 !pnpm-lock.yaml

@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "keys:gen": "node scripts/gen-keys.mjs",
-    "build": "npm run sim:build && tsc -p tsconfig.json",
+    "build": "npm run sim:build && npm run build:ts",
+    "build:ts": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "lint": "tsc --noEmit",
     "test": "vitest run",
