@@ -25,6 +25,11 @@ extends VehicleBody3D
 @export var is_local: bool = false
 @export var player_id: String = ""
 
+# When set, the kart sources its inputs from this controller instead of the
+# keyboard. Used for AI opponents in solo races. Player karts leave this
+# null and read Input actions directly.
+var ai_controller: Node = null
+
 # Tuning — overridden per NFT kart by `apply_stats(...)`
 @export var engine_force_max: float = 340.0
 @export var brake_force_max: float = 22.0
@@ -163,13 +168,24 @@ func _collect_mesh_instances(node: Node) -> Array:
 		out.append_array(_collect_mesh_instances(child))
 	return out
 
+func _ready() -> void:
+	# Skid-mark trail behind wheels (Mario-Kart style). Self-contained;
+	# spawns fading quads in world space when boosting or hard-cornering.
+	# Adapted from gitlab.com/20-games-in-30-days/mario-kart (TireTrail.gd).
+	var skid: TireSkid = TireSkid.new()
+	skid.name = "TireSkid"
+	add_child(skid)
+
 func _physics_process(delta: float) -> void:
 	if is_local:
 		_read_local_input()
-		_tick_boost(delta)
+		# AI karts don't send network input or boost; keep their loop tight.
+		if ai_controller == null:
+			_tick_boost(delta)
 		_apply_drive(delta)
 		_check_auto_recover(delta)
-		_send_input_if_due()
+		if ai_controller == null:
+			_send_input_if_due()
 	else:
 		_interpolate_to_target(delta)
 
@@ -204,6 +220,13 @@ func _activate_boost() -> void:
 	boost_started.emit()
 
 func _read_local_input() -> void:
+	# AI-driven kart: pull inputs from the attached controller and skip the
+	# keyboard + item-use path entirely (AI doesn't fire items today).
+	if ai_controller != null and is_instance_valid(ai_controller):
+		_input_throttle = float(ai_controller.input_throttle)
+		_input_brake = float(ai_controller.input_brake)
+		_input_steer = float(ai_controller.input_steer)
+		return
 	_input_throttle = Input.get_action_strength("throttle")
 	_input_brake = Input.get_action_strength("brake")
 	# Godot's VehicleBody3D.steering is POSITIVE = left, NEGATIVE = right.

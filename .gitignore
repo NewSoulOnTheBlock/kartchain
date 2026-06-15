@@ -21,6 +21,8 @@ client/export/
 client/.tmp/
 # gdUnit4 addon — installed per-dev, see client/test/README.md
 client/addons/gdUnit4/
+# godot-mcp-enhanced — editor MCP bridge, installed per-dev
+client/addons/godot_mcp_server/
 client/reports/
 
 # Rust / Anchor

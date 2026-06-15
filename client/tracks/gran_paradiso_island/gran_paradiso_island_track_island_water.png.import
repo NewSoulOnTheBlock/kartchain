@@ -3,9 +3,11 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://b71d5a3ftefdd"
-path="res://.godot/imported/gran_paradiso_island_track_island_water.png-133cfc32e779987b0a259f1f052c25f3.ctex"
+path.s3tc="res://.godot/imported/gran_paradiso_island_track_island_water.png-133cfc32e779987b0a259f1f052c25f3.s3tc.ctex"
+path.etc2="res://.godot/imported/gran_paradiso_island_track_island_water.png-133cfc32e779987b0a259f1f052c25f3.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 generator_parameters={
 "md5": "f22e7436b727b4bd1d7bc3cc6be629d4"
@@ -14,11 +16,11 @@ generator_parameters={
 [deps]
 
 source_file="res://tracks/gran_paradiso_island/gran_paradiso_island_track_island_water.png"
-dest_files=["res://.godot/imported/gran_paradiso_island_track_island_water.png-133cfc32e779987b0a259f1f052c25f3.ctex"]
+dest_files=["res://.godot/imported/gran_paradiso_island_track_island_water.png-133cfc32e779987b0a259f1f052c25f3.s3tc.ctex", "res://.godot/imported/gran_paradiso_island_track_island_water.png-133cfc32e779987b0a259f1f052c25f3.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -40,4 +42,4 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=1
+detect_3d/compress_to=0

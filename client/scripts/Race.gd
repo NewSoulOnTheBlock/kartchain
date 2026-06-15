@@ -3,6 +3,8 @@ extends Node3D
 ## and bridges UI events.
 
 const KART_SCENE := preload("res://scenes/Kart.tscn")
+const RacingLineScript = preload("res://scripts/RacingLine.gd")
+const AIControllerScript = preload("res://scripts/AIController.gd")
 
 @onready var karts_root: Node3D = $Karts
 @onready var camera: Camera3D = $Camera
@@ -25,6 +27,12 @@ var _last_waiting_until_ms: float = 0.0
 
 var _track_node: Node3D = null
 var _loaded_track_id: String = ""
+var _racing_line: RacingLineScript.RacingLineData = null
+
+# How many AI opponents to spawn when the room is solo or short of humans.
+# Capped at the 8-slot grid (TrackLoader.grid_slot). Set 0 to disable AI.
+const AI_FILL_TARGET: int = 4
+var _ai_spawned: bool = false
 
 # Camera modes
 var _free_cam_enabled: bool = false  # kart-follow by default; F1 toggles free-cam
@@ -81,6 +89,10 @@ func _send_ready_once() -> void:
 		return
 	_sent_ready = true
 	NetworkClient.send_ready()
+	# Once we know our local kart and the track is loaded, fill the grid
+	# with AI opponents. Deferred so the racing line (parsed during
+	# _load_track) has had a chance to arrive even if state ticks raced.
+	call_deferred("_maybe_spawn_ai_karts")
 
 func _show_debug_hint() -> void:
 	var hint := Label.new()
@@ -327,6 +339,12 @@ func _on_race_state(state: Dictionary) -> void:
 			lap_label.text = "Lap %d / %d" % [int(k_data.get("lap", 0)), int(state.get("totalLaps", 3))]
 			pos_label.text = "P%d" % int(k_data.get("position", 0))
 
+	# If the local kart, the racing line, and the room size are all known,
+	# fill empty grid slots with AI opponents. Idempotent: subsequent state
+	# ticks are no-ops via the _ai_spawned guard inside.
+	if local_kart != null and _racing_line != null and not _ai_spawned:
+		_maybe_spawn_ai_karts()
+
 func _spawn_kart(pid: String, k_data: Dictionary) -> VehicleBody3D:
 	var node: VehicleBody3D = KART_SCENE.instantiate()
 	node.player_id = pid
@@ -391,7 +409,89 @@ func _load_track(track_id: String) -> bool:
 	# (server places them at y=0.5 in flat-world coords; track meshes are
 	# centered around y=0 in the GLB so this is usually safe).
 	print("[race] track loaded:", track_id)
+	# Parse STK driveline (res://tracks/<id>/quads.xml) into a Curve3D so AI
+	# karts have something to follow. Safe to call even when AI is disabled;
+	# the curve is also useful for future minimap/HUD work.
+	_racing_line = RacingLineScript.load_for_track(track_id)
+	if _racing_line != null:
+		print("[race] racing line: %d quads, length %.1fm" % [_racing_line.quad_count, _racing_line.length])
+	else:
+		print("[race] no racing line — AI opponents will be disabled for %s" % track_id)
 	return true
+
+# Fill empty grid slots with AI opponents. Called once the local kart has
+# arrived and we know the room size. AI karts are 100% client-side fiction
+# today — the server doesn't know about them. PvP work (tomorrow) will move
+# AI policy to the server so all clients see identical AI behavior.
+func _maybe_spawn_ai_karts() -> void:
+	if _ai_spawned:
+		return
+	if _racing_line == null:
+		return
+	if local_kart == null or not is_instance_valid(local_kart):
+		return
+	var human_count: int = karts_by_id.size()
+	# Only fill when the room is essentially solo (1 human present) so we
+	# don't create a 12-kart grid in a 4-player race that's still waiting.
+	if human_count > 1:
+		return
+	var max_grid: int = max(1, int(_last_max_players))
+	var ai_count: int = min(AI_FILL_TARGET, max(0, 8 - human_count))
+	if ai_count <= 0:
+		return
+	_ai_spawned = true
+	print("[race] spawning %d AI opponents (max grid %d)" % [ai_count, max_grid])
+
+	# Use the racing-line tangent at the player's spawn to orient AI karts
+	# the same way the player faces, so the grid points down the track.
+	var anchor: Vector3 = local_kart.global_position
+	var fwd: Vector3 = RacingLineScript.tangent_at(_racing_line, anchor)
+	if fwd.length_squared() < 1e-4:
+		fwd = -local_kart.global_transform.basis.z
+
+	for i in ai_count:
+		# i+1 because grid slot 0 belongs to the local kart.
+		var grid := TrackLoader.grid_slot(i + 1)
+		_spawn_ai_kart(i, anchor, fwd, grid)
+
+func _spawn_ai_kart(index: int, anchor: Vector3, fwd: Vector3, grid: Vector3) -> void:
+	var node: VehicleBody3D = KART_SCENE.instantiate()
+	var pid: String = "ai-%02d" % index
+	node.player_id = pid
+	# `is_local = true` keeps the kart on the local physics path (instead of
+	# net-interpolation). The AIController feeds inputs in lieu of keyboard.
+	node.is_local = true
+	karts_root.add_child(node)
+	karts_by_id[pid] = node
+
+	# Visual + tuning variety so AI karts look distinct.
+	var kart_type: int = ((index * 7) % max(1, KartCatalog.karts.size()))
+	var stats := _stats_for_kart(kart_type)
+	node.apply_stats(stats["top_speed"], stats["accel"], stats["handling"])
+	var model_path := KartCatalog.kart_model_path(kart_type)
+	if not model_path.is_empty():
+		node.set_kart_model(model_path)
+
+	# Place the AI on the grid behind the player, facing the racing-line tangent.
+	var right: Vector3 = fwd.cross(Vector3.UP).normalized()
+	var spawn_world: Vector3 = anchor + (right * grid.x) + (fwd * -abs(grid.z))
+	spawn_world.y += TrackLoader.GROUND_LIFT
+	node.global_position = spawn_world
+	node.look_at(spawn_world + fwd, Vector3.UP)
+	# Cancel the look_at's rotation around Y if our model is +Z-nose (per
+	# Kart.gd's "Orientation convention" header): rotate 180° so the visible
+	# nose points along `fwd`.
+	node.rotate_object_local(Vector3.UP, PI)
+
+	# Hook up the AI brain. Skill rises with index so AI 0 is easy, AI N hard.
+	var ai: Node = AIControllerScript.new()
+	ai.name = "AIController"
+	ai.setup(_racing_line)
+	var skill: float = clamp(0.25 + 0.20 * float(index), 0.0, 1.0)
+	ai.apply_skill(skill)
+	node.add_child(ai)
+	node.ai_controller = ai
+	print("[race] AI %s kart_type=%d skill=%.2f at %s" % [pid, kart_type, skill, str(spawn_world)])
 
 func _stats_for_kart(kart_type: int) -> Dictionary:
 	# kart_type 0 = starter; > 0 = NFT lookup (TODO: pull from GameState.owned_karts)

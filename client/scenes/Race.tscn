@@ -1,7 +1,8 @@
-[gd_scene load_steps=8 format=3 uid="uid://kartchain_race"]
+[gd_scene load_steps=9 format=3 uid="uid://kartchain_race"]
 
 [ext_resource type="Script" path="res://scripts/Race.gd" id="1_race"]
 [ext_resource type="Script" path="res://scripts/FreeCam.gd" id="2_freecam"]
+[ext_resource type="Script" path="res://scripts/Leaderboard.gd" id="3_leaderboard"]
 
 [sub_resource type="ProceduralSkyMaterial" id="SkyMat_default"]
 sky_top_color = Color(0.231, 0.486, 0.831, 1)
@@ -173,4 +174,39 @@ layout_mode = 2
 max_value = 100.0
 value = 100.0
 show_percentage = false
+
+[node name="Leaderboard" type="PanelContainer" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -360.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 280.0
+grow_horizontal = 0
+self_modulate = Color(0.05, 0.05, 0.08, 0.72)
+script = ExtResource("3_leaderboard")
+
+[node name="Margin" type="MarginContainer" parent="HUD/Leaderboard"]
+layout_mode = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="VBox" type="VBoxContainer" parent="HUD/Leaderboard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="Title" type="Label" parent="HUD/Leaderboard/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+modulate = Color(1, 0.92, 0.45, 1)
+text = "STANDINGS"
+
+[node name="Rows" type="VBoxContainer" parent="HUD/Leaderboard/Margin/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 2
 
