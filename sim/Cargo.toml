@@ -1,0 +1,42 @@
+[package]
+name = "kart_sim"
+version = "0.1.0"
+edition = "2021"
+publish = false
+# Shared deterministic kart physics for kartchain.
+# Compiled to wasm32-unknown-unknown — same .wasm runs in:
+#   - Node.js server (Colyseus RaceRoom)
+#   - Godot browser client (via JavaScriptBridge)
+# Identical bits => identical f32 ops => identical positions => true rollback.
+
+[lib]
+# For native builds (cargo test) we only need `rlib`. The WASM build is
+# kicked off via the build script (sim/build.sh / build.ps1) which calls
+# `cargo rustc --target wasm32-unknown-unknown --crate-type cdylib`,
+# producing the `.wasm` file we ship to server + client.
+#
+# Keeping `cdylib` out of this list avoids the "unwinding panics are not
+# supported without std" error on x86_64-pc-windows-msvc, which fires when
+# a cdylib lacks std AND a panic="abort" runtime.
+crate-type = ["rlib"]
+
+[dependencies]
+# libm gives us pure-Rust sin/cos/sqrt/etc. that compile to deterministic
+# WASM instructions instead of importing from the host. Without this, every
+# trig call would go through a host function whose precision varies per
+# WASM runtime, breaking determinism.
+libm = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true
+# Determinism notes:
+# - `opt-level = 3` is safe: WASM f32/f64 ops are IEEE-754 deterministic per
+#   the spec; LLVM's float reassociation is OFF by default in non-fast-math.
+# - `lto = true` produces a single .wasm with no unresolved imports, which
+#   is required for cross-engine bit-exact behavior.
+# - WASM has no native unwinding so `panic = "abort"` is implicit there;
+#   we omit it from this section so the native `cdylib` (used by cargo
+#   test) can still build on x86_64.

@@ -1,14 +1,18 @@
 import { Room, Client } from "@colyseus/core";
 import { RaceState, Kart } from "../schemas/RaceState.js";
-import { simulateKart, type KartInput } from "../simulation/kartSim.js";
+import { type KartInput } from "../simulation/kartSim.js";
+import { loadKartSim, type KartSim } from "../simulation/wasmSim.js";
 import { verifyEntryTx } from "../solana/verifyEntry.js";
 import { settleRace } from "../solana/settle.js";
 import { mintP2eRewards, p2eRewardForPosition } from "../solana/p2e.js";
 import { loadTrackCatalog } from "../content/catalog.js";
 
-const TICK_RATE_HZ = 30;
+const TICK_RATE_HZ = 60;
 const TICK_MS = 1000 / TICK_RATE_HZ;
 const COUNTDOWN_SECONDS = 3;
+// Hard cap on karts per room — matches the WASM sim's slot count and the
+// 8-slot grid layout in TrackLoader.gd.
+const MAX_KARTS_PER_ROOM = 8;
 // Quick-race matchmaking: if a room hasn't filled within this window after
 // the FIRST player joined, auto-start with whoever is present.
 const AUTO_START_AFTER_MS = 30_000;
@@ -39,6 +43,14 @@ export class RaceRoom extends Room<RaceState> {
   private _inputs = new Map<string, KartInput>();
   // Per-client accepted input seq (for ignoring stale)
   private _lastSeq = new Map<string, number>();
+
+  // Deterministic kart physics: one Rust→WASM instance per room. Each kart
+  // owns a slot index [0..7] into the sim's kart pool. Identical inputs +
+  // identical .wasm bytes => identical f32 output on server AND client,
+  // which is the prerequisite for rollback netcode.
+  private _sim: KartSim | null = null;
+  private _slotByPlayer = new Map<string, number>();
+  private _usedSlots = new Set<number>();
 
   // Track which raceId this room belongs to (used by lobby polling)
   raceId = "";
@@ -117,7 +129,22 @@ export class RaceRoom extends Room<RaceState> {
         console.log(`[race:${this.raceId}] spawn override set: (${payload.x.toFixed(1)}, ${payload.y.toFixed(1)}, ${payload.z.toFixed(1)})`);
       });
 
-      // 30 Hz tick
+      // Load the deterministic kart physics .wasm. Per-room instance so
+      // races don't share linear memory. If the .wasm is missing the room
+      // fails to start — operators MUST run `pnpm sim:build` before booting
+      // the server. We don't silently fall back to a JS sim because that
+      // would defeat the cross-client determinism guarantee.
+      try {
+        this._sim = await loadKartSim();
+        console.log(`[race:${this.raceId}] kart_sim.wasm loaded (version 0x${this._sim.version.toString(16)})`);
+      } catch (err) {
+        console.error(`[race:${this.raceId}] kart_sim.wasm load FAILED — race will be uninhabitable:`, err);
+        throw err;
+      }
+
+      // 60 Hz tick — twice the old rate. Trivial CPU cost (a few µs per
+      // tick per kart in WASM), and the doubled state rate makes
+      // client-side prediction reconciliation much smoother.
       this.setSimulationInterval((deltaMs) => {
         try {
           this._tick(deltaMs);
@@ -159,6 +186,9 @@ export class RaceRoom extends Room<RaceState> {
       if (this.state.phase !== "waiting" && this.state.phase !== "countdown") {
         throw new Error(`race ${this.raceId} already in progress (phase=${this.state.phase})`);
       }
+      if (this.state.karts.size >= MAX_KARTS_PER_ROOM) {
+        throw new Error(`race ${this.raceId} full (${this.state.karts.size}/${MAX_KARTS_PER_ROOM} karts)`);
+      }
       const k = new Kart();
       k.playerId = client.sessionId;
       k.wallet = String(options?.wallet ?? "");
@@ -173,7 +203,18 @@ export class RaceRoom extends Room<RaceState> {
       k.yaw = 0;
       this.state.karts.set(client.sessionId, k);
       this._inputs.set(client.sessionId, { throttle: 0, brake: 0, steer: 0, useItem: false });
-      console.log(`[race:${this.raceId}] onJoin OK sessionId=${client.sessionId} wallet=${k.wallet.slice(0,8) || "(none)"} kartType=${k.kartType} kartsAfter=${this.state.karts.size}/${this.maxClients}`);
+
+      // Allocate a deterministic-sim slot and seed it with the spawn pose.
+      // Slot index doesn't have to match position; we just need each kart
+      // to own a distinct one for the lifetime of the connection.
+      const slot = this._allocSlot();
+      this._slotByPlayer.set(client.sessionId, slot);
+      if (this._sim) {
+        this._sim.init(slot);
+        this._sim.setPose(slot, k.x, k.z, k.yaw);
+      }
+
+      console.log(`[race:${this.raceId}] onJoin OK sessionId=${client.sessionId} wallet=${k.wallet.slice(0,8) || "(none)"} kartType=${k.kartType} slot=${slot} kartsAfter=${this.state.karts.size}/${this.maxClients}`);
 
       // First player to arrive starts the matchmaking wait window.
       // Solo (maxClients=1) skips the wait entirely.
@@ -199,6 +240,22 @@ export class RaceRoom extends Room<RaceState> {
     this.state.karts.delete(client.sessionId);
     this._inputs.delete(client.sessionId);
     this._lastSeq.delete(client.sessionId);
+    const slot = this._slotByPlayer.get(client.sessionId);
+    if (slot !== undefined) {
+      this._slotByPlayer.delete(client.sessionId);
+      this._usedSlots.delete(slot);
+    }
+  }
+
+  /** Return the lowest free slot in [0..MAX_KARTS_PER_ROOM). */
+  private _allocSlot(): number {
+    for (let i = 0; i < MAX_KARTS_PER_ROOM; i++) {
+      if (!this._usedSlots.has(i)) {
+        this._usedSlots.add(i);
+        return i;
+      }
+    }
+    throw new Error(`no free kart slots (${this._usedSlots.size}/${MAX_KARTS_PER_ROOM} used)`);
   }
 
   private _readyCount(): number {
@@ -259,16 +316,27 @@ export class RaceRoom extends Room<RaceState> {
 
   private _tick(deltaMs: number) {
     // Skip tick++ in non-racing phases — it just spams schema patches at
-    // 30 Hz to every connected client for no game-state value.
+    // 60 Hz to every connected client for no game-state value.
     if (this.state.phase !== "racing") return;
+    if (this._sim === null) return; // load failed; race is uninhabitable
     this.state.tick++;
     const dt = deltaMs / 1000;
 
-    // Simulate each kart
+    // Simulate each kart through the deterministic WASM sim, then mirror
+    // the result back into the Colyseus Schema so connected clients see it.
     this.state.karts.forEach((kart, sessionId) => {
       if (kart.finished) return;
       const input = this._inputs.get(sessionId) ?? { throttle: 0, brake: 0, steer: 0, useItem: false };
-      simulateKart(kart, input, dt);
+      const slot = this._slotByPlayer.get(sessionId);
+      if (slot === undefined) return;
+      this._sim!.tick(slot, input.throttle, input.brake, input.steer, dt);
+      const s = this._sim!.read(slot);
+      kart.x = s.x;
+      kart.z = s.z;
+      kart.yaw = s.yaw;
+      kart.speed = s.speed;
+      kart.vx = s.vx;
+      kart.vz = s.vz;
       // Lap progress is stubbed: paced so a full N-lap race lands at exactly
       // MIN_RACE_DURATION_MS (5 min for 3 laps). TODO: real track-segment
       // crossing logic — when that lands, this stub can go away but the

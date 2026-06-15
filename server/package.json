@@ -8,10 +8,12 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "keys:gen": "node scripts/gen-keys.mjs",
-    "build": "tsc -p tsconfig.json",
+    "build": "npm run sim:build && tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "lint": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "sim:build": "cd ../sim && cargo rustc --release --target wasm32-unknown-unknown --crate-type cdylib",
+    "sim:test": "cd ../sim && cargo test --release"
   },
   "dependencies": {
     "@colyseus/core": "^0.16.0",
