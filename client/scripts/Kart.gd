@@ -289,24 +289,41 @@ func _apply_wasm_pose(s: Dictionary) -> void:
 	var basis := Basis(Vector3.UP, yaw)
 	global_transform = Transform3D(basis, global_position)
 
-const _WASM_GROUND_PROBE_UP: float = 5.0
+const _WASM_GROUND_PROBE_UP: float = 1.5
 const _WASM_GROUND_PROBE_DOWN: float = 50.0
 const _WASM_GROUND_LIFT: float = 0.45
+# Reject ground raycast hits more than this far above the kart's current Y
+# as ceilings (temple roofs, bridges, jungle canopies on STK tracks).
+# Without this filter the local kart "climbs" through overhead geometry
+# every physics frame because the WASM-authoritative kart is frozen
+# kinematic — there's no gravity to pull it back down off a roof hit.
+const _WASM_GROUND_CEILING_REJECT: float = 1.5
 
 func _query_ground_y(x: float, z: float, current_y: float) -> float:
 	var space = get_world_3d().direct_space_state
 	if space == null:
 		return current_y
-	var from := Vector3(x, current_y + _WASM_GROUND_PROBE_UP, z)
-	var to := Vector3(x, current_y - _WASM_GROUND_PROBE_DOWN, z)
-	var query := PhysicsRayQueryParameters3D.create(from, to)
-	query.exclude = [self]
-	query.collide_with_areas = false
-	query.collide_with_bodies = true
-	var hit: Dictionary = space.intersect_ray(query)
-	if hit.has("position"):
-		return float(hit.position.y) + _WASM_GROUND_LIFT
-	return current_y  # no ground found; preserve current Y (free-fall to DEATH_FLOOR_Y in Race.gd)
+	# Walk the ray down through up to N ceiling layers before giving up.
+	# Each iteration: cast, accept hits at-or-below (current_y + reject),
+	# otherwise restart the ray just below that ceiling.
+	var ray_top: float = current_y + _WASM_GROUND_PROBE_UP
+	var ceiling_threshold: float = current_y + _WASM_GROUND_CEILING_REJECT
+	for _step in 16:
+		var from := Vector3(x, ray_top, z)
+		var to := Vector3(x, current_y - _WASM_GROUND_PROBE_DOWN, z)
+		var query := PhysicsRayQueryParameters3D.create(from, to)
+		query.exclude = [self]
+		query.collide_with_areas = false
+		query.collide_with_bodies = true
+		var hit: Dictionary = space.intersect_ray(query)
+		if not hit.has("position"):
+			return current_y  # no ground; preserve current Y (free-fall handled in Race.gd)
+		var hit_y: float = float(hit.position.y)
+		if hit_y <= ceiling_threshold:
+			return hit_y + _WASM_GROUND_LIFT
+		# Ceiling — start a fresh ray just below it.
+		ray_top = hit_y - 0.05
+	return current_y
 
 func _send_input_and_log() -> void:
 	# Send every physics tick so the server's reconciliation gets fresh
