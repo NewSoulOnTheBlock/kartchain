@@ -55,6 +55,7 @@ func _ready() -> void:
 	NetworkClient.race_lap.connect(_on_lap)
 	NetworkClient.race_finish.connect(_on_finish)
 	NetworkClient.race_settled.connect(_on_settled)
+	NetworkClient.race_ping.connect(_on_ping)
 	NetworkClient.net_error.connect(_on_net_error)
 
 	# Kick off the deterministic kart-sim .wasm load early so it's ready
@@ -164,6 +165,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			# Manual recover — flip upright + lift, preserve heading.
 			if local_kart and is_instance_valid(local_kart) and local_kart.has_method("recover"):
 				local_kart.recover()
+		elif k.keycode == KEY_ESCAPE:
+			# Escape hatch out of a race (PvP rooms that won't fill, stuck
+			# states, etc). Leave the Colyseus room and return to ModeMenu.
+			_leave_race_and_return_to_menu()
+
+func _leave_race_and_return_to_menu() -> void:
+	print("[race] ESC pressed — leaving race")
+	if NetworkClient.has_method("leave_room"):
+		NetworkClient.leave_room()
+	# Tiny grace so the leave message hits the wire before scene change.
+	await get_tree().create_timer(0.05).timeout
+	get_tree().change_scene_to_file("res://scenes/ModeMenu.tscn")
 
 func _apply_camera_mode() -> void:
 	if camera.has_method("enable"):
@@ -607,3 +620,18 @@ func _on_finish(player_id: String, total_time: float, position: int) -> void:
 func _on_settled(tx_signature: String) -> void:
 	print("Race settled onchain:", tx_signature)
 	hud.get_node("FinishPanel/VBox/Tx").text = "Tx: " + tx_signature
+
+# RTT readout — pushed once a second from the JS bridge. Painted into
+# the small "Ping" label in the top-right of the HUD. Color-coded so the
+# player has an instant cue when their connection degrades.
+func _on_ping(rtt_ms: int) -> void:
+	var label := hud.get_node_or_null("PingLabel") as Label
+	if label == null:
+		return
+	label.text = "PING %d ms" % rtt_ms
+	if rtt_ms < 60:
+		label.modulate = Color(0.45, 0.95, 0.55)   # green — great
+	elif rtt_ms < 120:
+		label.modulate = Color(0.95, 0.92, 0.45)   # yellow — playable
+	else:
+		label.modulate = Color(0.95, 0.45, 0.45)   # red — bad

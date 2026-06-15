@@ -135,6 +135,14 @@ export class RaceRoom extends Room<RaceState> {
         console.log(`[race:${this.raceId}] spawn override set: (${payload.x.toFixed(1)}, ${payload.y.toFixed(1)}, ${payload.z.toFixed(1)})`);
       });
 
+      // Lightweight ping pong so clients can show real RTT in the HUD.
+      // Echoes back whatever timestamp the client sent so the client can
+      // measure round-trip locally without server clocks.
+      this.onMessage("ping", (client, payload: { t: number }) => {
+        const t = Number(payload?.t) || 0;
+        client.send("pong", { t });
+      });
+
       // Load the deterministic kart physics .wasm. Per-room instance so
       // races don't share linear memory. If the .wasm is missing the room
       // fails to start — operators MUST run `pnpm sim:build` before booting
@@ -465,7 +473,7 @@ export class RaceRoom extends Room<RaceState> {
   private _deriveTrackId(raceId: string): string {
     const bundledList = (
       process.env.CLIENT_BUNDLED_TRACKS ??
-      "lighthouse,snowmountain,scotland,snowtuxpeak,sandtrack"
+      "lighthouse,cocoa_temple,hacienda,snowmountain"
     )
       .split(",").map((s) => s.trim()).filter(Boolean);
     const bundled = new Set(bundledList);

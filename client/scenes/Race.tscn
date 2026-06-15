@@ -210,3 +210,19 @@ text = "STANDINGS"
 layout_mode = 2
 theme_override_constants/separation = 2
 
+[node name="PingLabel" type="Label" parent="HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -160.0
+offset_top = -4.0
+offset_right = -18.0
+offset_bottom = 22.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 14
+modulate = Color(0.65, 0.65, 0.7, 1)
+horizontal_alignment = 2
+text = "PING — ms"
+

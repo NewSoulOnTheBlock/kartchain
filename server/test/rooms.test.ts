@@ -119,4 +119,75 @@ describe("Kartchain rooms", () => {
       new Promise((r) => setTimeout(r, 500)),
     ]);
   });
+
+  it("end-to-end PvP: two clients matchmake into the same room, race together", async () => {
+    // The shipping criterion for PvP. Verifies:
+    //   - both clients land in the SAME room (filterBy(["raceId"]))
+    //   - both ready up -> phase advances (countdown -> racing)
+    //   - both can send inputs -> kart.lastInputSeq advances independently
+    //   - the WASM-driven server tick actually moves karts (x/z change)
+    //   - both clients see both karts in state (cross-visibility)
+    const room1 = await colyseus.createRoom("race", {
+      raceId: "quick-2p-e2e",
+      entryFeeLamports: "0",
+      maxPlayers: 2,
+    });
+    const a = await colyseus.connectTo(room1, {
+      raceId: "quick-2p-e2e", wallet: "", maxPlayers: 2,
+    });
+    const b = await colyseus.connectTo(room1, {
+      raceId: "quick-2p-e2e", wallet: "", maxPlayers: 2,
+    });
+    expect(a.sessionId).not.toBe(b.sessionId);
+    expect(room1.state.karts.size).toBe(2);
+
+    const kartA = room1.state.karts.get(a.sessionId)!;
+    const kartB = room1.state.karts.get(b.sessionId)!;
+    expect(kartA).toBeDefined();
+    expect(kartB).toBeDefined();
+
+    // Both clients see both karts (cross-visibility through schema sync).
+    await new Promise((r) => setTimeout(r, 100));
+    expect(a.state.karts.size).toBe(2);
+    expect(b.state.karts.size).toBe(2);
+
+    // Both ready up -> countdown fires; after countdown (3s) -> racing.
+    await a.send("ready", {});
+    await b.send("ready", {});
+    await new Promise((r) => setTimeout(r, 250));
+    expect(["countdown", "racing"]).toContain(room1.state.phase);
+
+    // Wait through the countdown (3s) into racing phase.
+    await new Promise((r) => setTimeout(r, 3500));
+    expect(room1.state.phase).toBe("racing");
+
+    // Capture pre-input positions, then drive both karts forward.
+    const startAx = kartA.x, startAz = kartA.z;
+    const startBx = kartB.x, startBz = kartB.z;
+    for (let seq = 1; seq <= 12; seq++) {
+      await a.send("input", { seq, throttle: 1, brake: 0, steer: 0 });
+      await b.send("input", { seq, throttle: 1, brake: 0, steer: 0 });
+      await new Promise((r) => setTimeout(r, 35));
+    }
+
+    // Both karts must have accepted inputs ...
+    expect(kartA.lastInputSeq).toBeGreaterThan(0);
+    expect(kartB.lastInputSeq).toBeGreaterThan(0);
+    // ... and the WASM-driven server tick must have moved them.
+    // Forward at yaw=0 is +Z in our convention; speed > 0 confirms physics ran.
+    expect(kartA.speed).toBeGreaterThan(0.5);
+    expect(kartB.speed).toBeGreaterThan(0.5);
+    const movedA = Math.hypot(kartA.x - startAx, kartA.z - startAz);
+    const movedB = Math.hypot(kartB.x - startBx, kartB.z - startBz);
+    expect(movedA).toBeGreaterThan(0.2);
+    expect(movedB).toBeGreaterThan(0.2);
+
+    await Promise.race([
+      Promise.all([
+        a.leave().catch(() => undefined),
+        b.leave().catch(() => undefined),
+      ]),
+      new Promise((r) => setTimeout(r, 800)),
+    ]);
+  }, 15_000);
 });

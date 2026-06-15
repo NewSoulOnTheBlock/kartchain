@@ -55,6 +55,7 @@ type NetEvent =
   | { type: "race:lap";       playerId: string; lapNumber: number; lapTime: number }
   | { type: "race:finish";    playerId: string; totalTime: number; position: number }
   | { type: "race:settled";   txSignature: string }
+  | { type: "race:ping";      rttMs: number }
   | { type: "error";          code: string; message: string };
 
 type KartchainApi = {
@@ -457,6 +458,22 @@ function makeApi(deps: {
           room.onMessage("finish",    (m: any) => emitNet({ type: "race:finish", playerId: m.playerId, totalTime: m.totalTime, position: m.position }));
           room.onMessage("settled",   (m: any) => emitNet({ type: "race:settled", txSignature: m.txSignature }));
           room.onMessage("error",     (m: any) => emitNet({ type: "error", code: m.code, message: m.message }));
+          // Ping/pong RTT — measure round-trip latency once a second so the
+          // HUD can show a real number. Stopped automatically when the room
+          // is left (raceRef.current === null).
+          room.onMessage("pong", (m: any) => {
+            const sentAt = Number(m?.t) || 0;
+            if (sentAt <= 0) return;
+            const rtt = Math.max(0, Date.now() - sentAt);
+            emitNet({ type: "race:ping", rttMs: rtt });
+          });
+          const pingTimer = window.setInterval(() => {
+            if (raceRef.current !== room) {
+              window.clearInterval(pingTimer);
+              return;
+            }
+            try { room.send("ping", { t: Date.now() }); } catch {}
+          }, 1000);
           room.onError((code, message) => {
             const lifeMs = Date.now() - joinStartMs;
             console.error(`[kartchain] race room ERROR code=${code} msg=${message} aliveFor=${lifeMs}ms`);

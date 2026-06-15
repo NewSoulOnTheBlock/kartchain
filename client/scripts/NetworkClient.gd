@@ -21,6 +21,7 @@ signal race_countdown(seconds: int)
 signal race_lap(player_id: String, lap: int, lap_time: float)
 signal race_finish(player_id: String, total_time: float, position: int)
 signal race_settled(tx_signature: String)
+signal race_ping(rtt_ms: int)
 signal net_error(code: String, message: String)
 signal bridge_ready()
 
@@ -104,6 +105,8 @@ func _on_net_event(args: Array) -> void:
 				int(evt.get("position", 0)))
 		"race:settled":
 			emit_signal("race_settled", String(evt.get("txSignature", "")))
+		"race:ping":
+			emit_signal("race_ping", int(evt.get("rttMs", 0)))
 		"error":
 			emit_signal("net_error",
 				String(evt.get("code", "")),
