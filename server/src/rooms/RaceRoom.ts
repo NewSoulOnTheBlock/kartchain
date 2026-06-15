@@ -12,6 +12,10 @@ const COUNTDOWN_SECONDS = 3;
 // Quick-race matchmaking: if a room hasn't filled within this window after
 // the FIRST player joined, auto-start with whoever is present.
 const AUTO_START_AFTER_MS = 30_000;
+// Minimum wall-clock duration a race must run before any player can finish.
+// Acts as a floor: even with the stub lap counter (or a future bug in real
+// lap detection) a player cannot trigger settlement before this elapses.
+const MIN_RACE_DURATION_MS = 5 * 60 * 1000;
 
 type JoinOpts = {
   raceId: string;
@@ -265,17 +269,31 @@ export class RaceRoom extends Room<RaceState> {
       if (kart.finished) return;
       const input = this._inputs.get(sessionId) ?? { throttle: 0, brake: 0, steer: 0, useItem: false };
       simulateKart(kart, input, dt);
-      // Lap progress is stubbed: every 8 seconds increment lap.
-      // TODO: real track-segment crossing logic.
+      // Lap progress is stubbed: paced so a full N-lap race lands at exactly
+      // MIN_RACE_DURATION_MS (5 min for 3 laps). TODO: real track-segment
+      // crossing logic — when that lands, this stub can go away but the
+      // MIN_RACE_DURATION_MS finish floor below must stay.
+      const elapsedMs = Date.now() - this.state.startTimestamp;
+      const lapsToRun = Math.max(1, this.state.totalLaps);
+      const stubLapIntervalMs = MIN_RACE_DURATION_MS / lapsToRun;
       if (kart.lap < this.state.totalLaps &&
-          Date.now() - this.state.startTimestamp > (kart.lap + 1) * 8000) {
+          elapsedMs > (kart.lap + 1) * stubLapIntervalMs) {
         kart.lap += 1;
-        this.broadcast("lap", { playerId: sessionId, lapNumber: kart.lap, lapTime: 8.0 });
-        if (kart.lap >= this.state.totalLaps) {
-          kart.finished = true;
-          kart.finishTime = (Date.now() - this.state.startTimestamp) / 1000;
-          this._finishKart(sessionId, kart);
-        }
+        this.broadcast("lap", {
+          playerId: sessionId,
+          lapNumber: kart.lap,
+          lapTime: stubLapIntervalMs / 1000,
+        });
+      }
+      // Finish gate: a player only finishes after completing every lap AND
+      // after the minimum race duration has elapsed. The stub naturally
+      // satisfies both at the same instant; a future real-lap-detection
+      // implementation will still be capped at MIN_RACE_DURATION_MS so
+      // quick races (or accidental teleports) can't end early.
+      if (kart.lap >= this.state.totalLaps && elapsedMs >= MIN_RACE_DURATION_MS) {
+        kart.finished = true;
+        kart.finishTime = elapsedMs / 1000;
+        this._finishKart(sessionId, kart);
       }
     });
 
@@ -373,7 +391,7 @@ export class RaceRoom extends Room<RaceState> {
   private _deriveTrackId(raceId: string): string {
     const bundledList = (
       process.env.CLIENT_BUNDLED_TRACKS ??
-      "lighthouse,cocoa_temple,hacienda,snowmountain,scotland,snowtuxpeak,sandtrack"
+      "lighthouse,snowmountain,scotland,snowtuxpeak,sandtrack"
     )
       .split(",").map((s) => s.trim()).filter(Boolean);
     const bundled = new Set(bundledList);

@@ -146,3 +146,31 @@ text = "Position: -"
 layout_mode = 2
 text = "Awaiting settlement..."
 
+[node name="BoostHUD" type="VBoxContainer" parent="HUD"]
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -180.0
+offset_top = -84.0
+offset_right = 180.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 4
+
+[node name="BoostLabel" type="Label" parent="HUD/BoostHUD"]
+layout_mode = 2
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 18
+modulate = Color(1, 0.95, 0.55, 1)
+text = "BOOST [SHIFT]"
+
+[node name="BoostBar" type="ProgressBar" parent="HUD/BoostHUD"]
+custom_minimum_size = Vector2(360, 22)
+layout_mode = 2
+max_value = 100.0
+value = 100.0
+show_percentage = false
+

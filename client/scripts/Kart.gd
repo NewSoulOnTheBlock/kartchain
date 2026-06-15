@@ -41,6 +41,22 @@ var _input_brake: float = 0.0
 var _input_steer: float = 0.0
 var _current_steer: float = 0.0
 
+# ─── Boost ────────────────────────────────────────────────────────────
+# Press SHIFT to unleash a forward boost: instant impulse + 3-second
+# engine multiplier. Recharges from empty to full over 30 seconds.
+# Race.gd reads boost_charge / is_boosting() each frame to drive the HUD.
+const BOOST_CHARGE_TIME_SEC: float = 30.0
+const BOOST_DURATION_SEC: float = 3.0
+const BOOST_ENGINE_MULT: float = 2.4
+const BOOST_LAUNCH_IMPULSE: float = 14.0
+# Start full so players can immediately use it on lap 1, then 30s recharge.
+var boost_charge: float = 1.0
+var _boost_remaining_sec: float = 0.0
+var _prev_shift_pressed: bool = false
+
+signal boost_started
+signal boost_ended
+
 # Interpolation buffer for remote karts
 var _net_target_pos: Vector3
 var _net_target_yaw: float = 0.0
@@ -150,11 +166,42 @@ func _collect_mesh_instances(node: Node) -> Array:
 func _physics_process(delta: float) -> void:
 	if is_local:
 		_read_local_input()
+		_tick_boost(delta)
 		_apply_drive(delta)
 		_check_auto_recover(delta)
 		_send_input_if_due()
 	else:
 		_interpolate_to_target(delta)
+
+func is_boosting() -> bool:
+	return _boost_remaining_sec > 0.0
+
+# Edge-triggers boost on SHIFT press, ticks charge meter, counts down
+# the active boost window. Called once per physics frame from local karts.
+func _tick_boost(delta: float) -> void:
+	if _boost_remaining_sec > 0.0:
+		_boost_remaining_sec = max(0.0, _boost_remaining_sec - delta)
+		if _boost_remaining_sec <= 0.0:
+			boost_ended.emit()
+		return
+	# Recharge while not boosting.
+	if boost_charge < 1.0:
+		boost_charge = clamp(boost_charge + delta / BOOST_CHARGE_TIME_SEC, 0.0, 1.0)
+	# Detect rising edge of SHIFT. Use raw key so we don't have to register
+	# a "boost" input action — FreeCam.gd polls KEY_SHIFT the same way.
+	var shift_now: bool = Input.is_physical_key_pressed(KEY_SHIFT)
+	if shift_now and not _prev_shift_pressed and boost_charge >= 1.0:
+		_activate_boost()
+	_prev_shift_pressed = shift_now
+
+func _activate_boost() -> void:
+	_boost_remaining_sec = BOOST_DURATION_SEC
+	boost_charge = 0.0
+	# Instantaneous forward kick. The kart's visual front is along its
+	# local -Z (see Orientation convention header & Race.gd chase cam).
+	var fwd_world: Vector3 = -global_transform.basis.z
+	linear_velocity += fwd_world * BOOST_LAUNCH_IMPULSE
+	boost_started.emit()
 
 func _read_local_input() -> void:
 	_input_throttle = Input.get_action_strength("throttle")
@@ -173,7 +220,14 @@ func _apply_drive(delta: float) -> void:
 	# in the opposite direction from what feels natural with our chase cam,
 	# so we negate to put the kart's motion in the camera's forward direction.
 	var drive = _input_throttle - _input_brake
-	engine_force = -drive * engine_force_max
+	if _boost_remaining_sec > 0.0:
+		# During boost, force max-forward engine regardless of input so SHIFT
+		# alone really "shoots" the kart. BOOST_ENGINE_MULT amplifies past the
+		# normal cap. Skips reverse so a player holding S during boost still
+		# goes forward.
+		engine_force = -1.0 * engine_force_max * BOOST_ENGINE_MULT
+	else:
+		engine_force = -drive * engine_force_max
 	# No active brake — pressing S applies reverse engine force instead, which
 	# both slows a forward-moving kart and lets you back up from a standstill.
 	brake = 0.0

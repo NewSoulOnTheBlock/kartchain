@@ -221,6 +221,36 @@ func _process(_delta: float) -> void:
 		var target = local_kart.global_position + back * 6.0 + up * 3.0
 		camera.global_position = camera.global_position.lerp(target, 0.25)
 		camera.look_at(local_kart.global_position + Vector3(0, 0.8, 0), Vector3.UP)
+	_update_boost_hud()
+
+# Reflects local_kart.boost_charge into the bottom-center bar. Tints
+# the bar gold + relabels while the boost is actively firing.
+const _BOOST_COLOR_READY   := Color(1.00, 0.78, 0.18, 1)
+const _BOOST_COLOR_ACTIVE  := Color(1.00, 0.45, 0.10, 1)
+const _BOOST_COLOR_CHARGING := Color(0.42, 0.62, 0.95, 1)
+func _update_boost_hud() -> void:
+	var bar := hud.get_node_or_null("BoostHUD/BoostBar") as ProgressBar
+	var label := hud.get_node_or_null("BoostHUD/BoostLabel") as Label
+	if bar == null or label == null:
+		return
+	if local_kart == null or not is_instance_valid(local_kart) or not ("boost_charge" in local_kart):
+		bar.value = 0.0
+		return
+	var boosting: bool = local_kart.has_method("is_boosting") and local_kart.is_boosting()
+	var charge_pct: float = 100.0 * clamp(local_kart.boost_charge, 0.0, 1.0)
+	bar.value = 100.0 if boosting else charge_pct
+	if boosting:
+		label.text = "BOOSTING!"
+		label.modulate = _BOOST_COLOR_ACTIVE
+		bar.modulate = _BOOST_COLOR_ACTIVE
+	elif charge_pct >= 100.0:
+		label.text = "BOOST READY  [SHIFT]"
+		label.modulate = _BOOST_COLOR_READY
+		bar.modulate = _BOOST_COLOR_READY
+	else:
+		label.text = "BOOST CHARGING  %d%%" % int(round(charge_pct))
+		label.modulate = _BOOST_COLOR_CHARGING
+		bar.modulate = _BOOST_COLOR_CHARGING
 
 func _now_ms() -> float:
 	return float(Time.get_unix_time_from_system() * 1000.0)

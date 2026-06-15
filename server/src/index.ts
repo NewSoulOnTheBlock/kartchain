@@ -58,7 +58,7 @@ async function main() {
           ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS ?? null,
           CLIENT_BUNDLED_TRACKS:
             process.env.CLIENT_BUNDLED_TRACKS ??
-            "lighthouse,cocoa_temple,hacienda,snowmountain,scotland,snowtuxpeak,sandtrack",
+            "lighthouse,snowmountain,scotland,snowtuxpeak,sandtrack",
         },
         rooms: {
           lobby: lobbyRooms.map((r) => ({ roomId: r.roomId, clients: r.clients, metadata: r.metadata })),
